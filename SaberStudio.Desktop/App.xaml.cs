@@ -1,5 +1,7 @@
 ﻿using Prism.Ioc;
+using Prism.Modularity;
 using SaberStudio.Desktop.Views;
+using SaberStudio.Modules.BeatSaver;
 using System.Windows;
 
 namespace SaberStudio.Desktop
@@ -15,8 +17,12 @@ namespace SaberStudio.Desktop
         }
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
-        {
+        {       
+        }
 
+        protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)
+        {
+            moduleCatalog.AddModule(typeof(BeatSaverModule));
         }
     }
 }

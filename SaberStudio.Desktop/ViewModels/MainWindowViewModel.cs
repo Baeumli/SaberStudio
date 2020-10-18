@@ -1,4 +1,5 @@
 ﻿using Prism.Mvvm;
+using SaberStudio.Services.BeatSaver.Interfaces;
 
 namespace SaberStudio.Desktop.ViewModels
 {
@@ -13,7 +14,6 @@ namespace SaberStudio.Desktop.ViewModels
 
         public MainWindowViewModel()
         {
-
         }
     }
 }
