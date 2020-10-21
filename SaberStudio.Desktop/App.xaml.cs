@@ -1,7 +1,10 @@
 ﻿using Prism.Ioc;
 using Prism.Modularity;
+using Prism.Regions;
+using SaberStudio.Core;
 using SaberStudio.Desktop.Views;
 using SaberStudio.Modules.BeatSaver;
+using SaberStudio.Modules.Sidebar;
 using System.Windows;
 
 namespace SaberStudio.Desktop
@@ -23,6 +26,7 @@ namespace SaberStudio.Desktop
         protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)
         {
             moduleCatalog.AddModule(typeof(BeatSaverModule));
+            moduleCatalog.AddModule(typeof(SidebarModule));
         }
     }
 }

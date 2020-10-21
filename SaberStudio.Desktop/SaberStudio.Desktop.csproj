@@ -13,6 +13,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SaberStudio.Modules.BeatSaver\SaberStudio.Modules.BeatSaver.csproj" />
+    <ProjectReference Include="..\SaberStudio.Modules.Sidebar\SaberStudio.Modules.Sidebar.csproj" />
     <ProjectReference Include="..\SaberStudio.Services.BeatSaver\SaberStudio.Services.BeatSaver.csproj" />
   </ItemGroup>
 </Project>

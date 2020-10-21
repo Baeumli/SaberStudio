@@ -9,15 +9,17 @@
     prism:ViewModelLocator.AutoWireViewModel="True">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="25*" />
+            <ColumnDefinition Width="75*" />
         </Grid.ColumnDefinitions>
 
 
         <ItemsControl
-            Grid.Row="1"
+            Grid.Column="0"
             prism:RegionManager.RegionName="{x:Static core:Regions.LeftRegion}" />
 
-        <ContentControl prism:RegionManager.RegionName="{x:Static core:Regions.ContentRegion}" />
+        <ContentControl
+            Grid.Column="1"
+            prism:RegionManager.RegionName="{x:Static core:Regions.ContentRegion}" />
     </Grid>
 </Window>
