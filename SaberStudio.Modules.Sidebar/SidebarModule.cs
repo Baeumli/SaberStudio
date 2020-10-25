@@ -3,6 +3,7 @@ using Prism.Ioc;
 using Prism.Modularity;
 using Prism.Regions;
 using SaberStudio.Core;
+using SaberStudio.Modules.Sidebar.ViewModels;
 
 namespace SaberStudio.Modules.Sidebar
 {
@@ -17,15 +18,13 @@ namespace SaberStudio.Modules.Sidebar
 
         public void OnInitialized(IContainerProvider containerProvider)
         {
-            var sidebarRegion = regionManager.Regions[Regions.LeftRegion];
-            sidebarRegion.Add(containerProvider.Resolve<SidebarView>());
+            regionManager.RegisterViewWithRegion(Regions.TopRegion, typeof(NavbarView));
+            regionManager.RegisterViewWithRegion(Regions.LeftRegion, typeof(SidebarView));
         }
 
         public void RegisterTypes(IContainerRegistry containerRegistry)
         {
-
+        
         }
-
-
     }
 }

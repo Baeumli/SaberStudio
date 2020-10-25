@@ -1,24 +1,26 @@
-﻿using Prism.Ioc;
+﻿using SaberStudio.Modules.Browser.Views;
+using Prism.Ioc;
 using Prism.Modularity;
-using SaberStudio.Services.BeatSaver;
-using SaberStudio.Services.BeatSaver.Interfaces;
-using Microsoft.Extensions.DependencyInjection;
-using System.Net.Http;
-using Unity.Microsoft.DependencyInjection;
-using Prism.Unity;
 using Prism.Regions;
-using SaberStudio.Modules.BeatSaver.Views;
 using SaberStudio.Core;
-using SaberStudio.Modules.BeatSaver.ViewModels;
+using SaberStudio.Domain.Models.Sidebar;
+using System.Collections.Generic;
+using SaberStudio.Services.BeatSaver;
+using SaberStudio.Modules.Browser.ViewModels;
+using SaberStudio.Services.BeatSaver.Interfaces;
+using System.Net.Http;
+using Prism.Unity;
+using Microsoft.Extensions.DependencyInjection;
+using Unity.Microsoft.DependencyInjection;
 
-namespace SaberStudio.Modules.BeatSaver
+namespace SaberStudio.Modules.Browser
 {
-    public class BeatSaverModule : IModule
+    public class BrowserModule : IModule
     {
         private readonly IRegionManager regionManager;
         private ISidebarManager sidebarManager;
 
-        public BeatSaverModule(IRegionManager regionManager, ISidebarManager sidebarManager)
+        public BrowserModule(IRegionManager regionManager, ISidebarManager sidebarManager)
         {
             this.regionManager = regionManager;
             this.sidebarManager = sidebarManager;
@@ -26,6 +28,16 @@ namespace SaberStudio.Modules.BeatSaver
 
         public void OnInitialized(IContainerProvider containerProvider)
         {
+            var group = new SidebarGroup
+            {
+                Title = "Browse",
+                Items = new List<SidebarItem>()
+                {
+                    new SidebarItem() { Title = "Maps", TargetView = typeof(MapBrowserView).Name },
+                    new SidebarItem() { Title = "Mods" },
+                }
+            };
+            sidebarManager.Add(group);
         }
 
         public void RegisterTypes(IContainerRegistry containerRegistry)
@@ -41,6 +53,8 @@ namespace SaberStudio.Modules.BeatSaver
 
             containerRegistry.Register<IBeatSaverClient, BeatSaverClient>();
 
+            containerRegistry.RegisterForNavigation<MapBrowserView, MapBrowserViewModel>();
+            containerRegistry.RegisterForNavigation<MapCategoryView, MapCategoryViewModel>();
             containerRegistry.RegisterForNavigation<ViewA, ViewAViewModel>();
             regionManager.RequestNavigate(Regions.ContentRegion, typeof(ViewA).Name);
         }

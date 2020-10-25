@@ -1,19 +1,15 @@
 ﻿using Prism.Mvvm;
-using SaberStudio.Services.BeatSaver.Interfaces;
 
 namespace SaberStudio.Desktop.ViewModels
 {
     public class MainWindowViewModel : BindableBase
     {
-        private string _title = "Prism Application";
+        private string _title = "Saber Studio";
+
         public string Title
         {
             get { return _title; }
             set { SetProperty(ref _title, value); }
-        }
-
-        public MainWindowViewModel()
-        {
         }
     }
 }

@@ -1,15 +1,26 @@
-﻿<UserControl x:Class="SaberStudio.Modules.Sidebar.Views.SidebarView"
+﻿<UserControl x:Class="SaberStudio.Modules.Sidebar.Views.SidebarView" x:Name="Root"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:SaberStudio.Modules.Sidebar.Views"
     xmlns:prism="http://prismlibrary.com/"
     prism:ViewModelLocator.AutoWireViewModel="True">
     <StackPanel>
-        <TextBlock Text="Sidebar" />
-        <ItemsControl ItemsSource="{Binding Items}">
+        <ItemsControl ItemsSource="{Binding Groups}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Button Content="{Binding}" />
+                    <StackPanel>
+                        <TextBlock Text="{Binding Title}" />
+                        <ItemsControl ItemsSource="{Binding Items}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button
+                                        Command="{Binding ElementName=Root, Path=DataContext.SelectedCommand}"
+                                        CommandParameter="{Binding TargetView}"
+                                        Content="{Binding Title}" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>

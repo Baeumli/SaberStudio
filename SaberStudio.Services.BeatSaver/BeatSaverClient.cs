@@ -46,9 +46,19 @@ namespace SaberStudio.Services.BeatSaver
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<Parser.Models.BeatMap>> GetByMapName(CancellationToken cancellationToken, string mapName)
+        public async Task<IEnumerable<Parser.Models.BeatMap>> GetByMapName(CancellationToken cancellationToken, string searchQuery, int pageNumber = 0)
         {
-            throw new NotImplementedException();
+            var request = new HttpRequestMessage(HttpMethod.Get, "search/text/" + pageNumber + "?q=" + searchQuery);
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            using (var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken))
+            {
+                response.EnsureSuccessStatusCode();
+                var stream = await response.Content.ReadAsStreamAsync();
+                var docs = stream.DeserializeJsonFromStream<Parser.Models.Docs>();
+
+                return docs.BeatMaps;
+            }
         }
 
         public Task<IEnumerable<Parser.Models.BeatMap>> GetByUploaderId(CancellationToken cancellationToken, string uploaderId, int pageNumber = 0)

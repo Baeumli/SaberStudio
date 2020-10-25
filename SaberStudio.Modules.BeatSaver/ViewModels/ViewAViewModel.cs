@@ -1,11 +1,12 @@
 ﻿using Prism.Mvvm;
+using Prism.Regions;
 using SaberStudio.Services.BeatSaver.Interfaces;
 using System.Linq;
 using System.Threading;
 
 namespace SaberStudio.Modules.BeatSaver.ViewModels
 {
-    public class ViewAViewModel : BindableBase
+    public class ViewAViewModel : BindableBase, INavigationAware
     {
         private string _message;
         private IBeatSaverClient client;
@@ -27,6 +28,17 @@ namespace SaberStudio.Modules.BeatSaver.ViewModels
             Message = maps.First().MapName;
         }
 
+        public void OnNavigatedTo(NavigationContext navigationContext)
+        {
+        }
 
+        public bool IsNavigationTarget(NavigationContext navigationContext)
+        {
+            return true;
+        }
+
+        public void OnNavigatedFrom(NavigationContext navigationContext)
+        {
+        }
     }
 }

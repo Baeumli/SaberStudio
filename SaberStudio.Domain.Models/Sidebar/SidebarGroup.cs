@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
-namespace SaberStudio.Modules.Sidebar.Models
+namespace SaberStudio.Domain.Models.Sidebar
 {
     public class SidebarGroup
     {
