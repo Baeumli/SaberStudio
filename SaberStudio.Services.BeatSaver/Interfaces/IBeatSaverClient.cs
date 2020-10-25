@@ -10,7 +10,7 @@ namespace SaberStudio.Services.BeatSaver.Interfaces
         
         public Task<IEnumerable<Parser.Models.BeatMap>> GetByMapKey(CancellationToken cancellationToken, string mapKey);
                
-        public Task<IEnumerable<Parser.Models.BeatMap>> GetByMapName(CancellationToken cancellationToken, string mapName);
+        public Task<IEnumerable<Parser.Models.BeatMap>> GetByMapName(CancellationToken cancellationToken, string searchQuery, int pageNumber = 0);
         
         public Task<IEnumerable<Parser.Models.BeatMap>> GetByUploaderId(CancellationToken cancellationToken, string uploaderId, int pageNumber = 0);
         
