@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using SaberStudio.Modules.Browser.ViewModels;
+using SaberStudio.Services.BeatSaver.Parser.Models;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -30,6 +32,12 @@ namespace SaberStudio.Modules.Browser.Views
                 var parent = ((Control)sender).Parent as UIElement;
                 parent.RaiseEvent(eventArg);
             }
+        }
+
+        private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var viewModel = DataContext as MapCategoryViewModel;
+            viewModel.SelectedCommand.Execute(e.AddedItems[0] as BeatMap);
         }
     }
 }

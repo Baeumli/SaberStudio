@@ -5,6 +5,7 @@ using SaberStudio.Core;
 using SaberStudio.Core.Extensions;
 using SaberStudio.Services.BeatSaver.Interfaces;
 using SaberStudio.Services.BeatSaver.Parser.Models;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading;
@@ -14,6 +15,14 @@ namespace SaberStudio.Modules.Browser.ViewModels
     public class MapCategoryViewModel : BindableBase, INavigationAware
     {
         private string navigationPath;
+
+        private DelegateCommand<BeatMap> selectedCommand;
+        public DelegateCommand<BeatMap> SelectedCommand => selectedCommand ??= new DelegateCommand<BeatMap>(ExecuteSelectedCommand);
+
+        private void ExecuteSelectedCommand(BeatMap map)
+        {
+            throw new NotImplementedException();
+        }
 
         private int currentPage = 1;
         public int CurrentPage

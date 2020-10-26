@@ -4,25 +4,22 @@ namespace SaberStudio.Services.BeatSaver.Parser.Models
 {
     public class Statistics
     {
-        [JsonProperty("difficulties")]
-        public Difficulty Difficulties { get; set; }
+        [JsonProperty("downVotes")]
+        public int Downvotes { get; set; }
 
-        [JsonProperty("duration")]
-        public int Duration { get; set; }
+        [JsonProperty("downloads")]
+        public int Downloads { get; set; }
 
-        [JsonProperty("songName")]
-        public string SongName { get; set; }
+        [JsonProperty("heat")]
+        public double Heat { get; set; }
 
-        [JsonProperty("songSubName")]
-        public string SongSubName { get; set; }
+        [JsonProperty("plays")]
+        public int Plays { get; set; }
 
-        [JsonProperty("songAuthorName")]
-        public string SongAuthor { get; set; }
+        [JsonProperty("rating")]
+        public double Rating { get; set; }
 
-        [JsonProperty("songLevelName")]
-        public string LevelAuthor { get; set; }
-
-        [JsonProperty("bpm")]
-        public string Bpm { get; set; }
+        [JsonProperty("upVotes")]
+        public int Upvotes { get; set; }
     }
 }

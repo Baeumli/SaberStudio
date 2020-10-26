@@ -1,6 +1,7 @@
-﻿<UserControl x:Class="SaberStudio.Modules.Browser.Views.MapCategoryView"
+﻿<UserControl x:Class="SaberStudio.Modules.Browser.Views.MapCategoryView" x:Name="Root"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:local="clr-namespace:SaberStudio.Modules.Browser.Views"
     xmlns:prism="http://prismlibrary.com/"
     prism:ViewModelLocator.AutoWireViewModel="True">
@@ -15,7 +16,9 @@
             ItemsSource="{Binding BeatMaps}"
             PreviewMouseWheel="ListView_PreviewMouseWheel"
             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-            ScrollViewer.VerticalScrollBarVisibility="Disabled">
+            ScrollViewer.VerticalScrollBarVisibility="Disabled"
+            SelectionChanged="ListView_SelectionChanged"
+            SelectionMode="Single">
             <ListView.View>
                 <GridView>
                     <GridViewColumn
