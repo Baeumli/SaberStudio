@@ -38,7 +38,10 @@ namespace SaberStudio.Modules.Browser.Views
         {
             var viewModel = DataContext as MapCategoryViewModel;
             // TODO: Fix OutOfRangeException when going back via journaling
-            viewModel.SelectedCommand.Execute(e.AddedItems[0] as BeatMap);
+            if (e.AddedItems.Count > 0)
+            {
+                viewModel.SelectedCommand.Execute(e.AddedItems[0] as BeatMap);
+            }
         }
     }
 }

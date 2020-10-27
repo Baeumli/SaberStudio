@@ -15,8 +15,8 @@ namespace SaberStudio.Modules.Browser.ViewModels
 
         public bool IsNavigationTarget(NavigationContext navigationContext)
         {
-            // check if its the same map
-            return true;
+            var newMap = navigationContext.Parameters["BeatMap"] as BeatMap;   
+            return newMap == BeatMap;
         }
 
         public void OnNavigatedFrom(NavigationContext navigationContext)
