@@ -3,6 +3,7 @@ using Prism.Mvvm;
 using Prism.Regions;
 using SaberStudio.Core;
 using SaberStudio.Core.Extensions;
+using SaberStudio.Modules.Browser.Views;
 using SaberStudio.Services.BeatSaver.Interfaces;
 using SaberStudio.Services.BeatSaver.Parser.Models;
 using System;
@@ -15,13 +16,20 @@ namespace SaberStudio.Modules.Browser.ViewModels
     public class MapCategoryViewModel : BindableBase, INavigationAware
     {
         private string navigationPath;
+        private IRegionManager regionManager;
+
 
         private DelegateCommand<BeatMap> selectedCommand;
         public DelegateCommand<BeatMap> SelectedCommand => selectedCommand ??= new DelegateCommand<BeatMap>(ExecuteSelectedCommand);
 
         private void ExecuteSelectedCommand(BeatMap map)
         {
-            throw new NotImplementedException();
+            var navParams = new NavigationParameters
+                {
+                    { "BeatMap",  map }
+                };
+
+            regionManager.RequestNavigate(Regions.ContentRegion, typeof(MapDetailView).Name, navParams);
         }
 
         private int currentPage = 1;
@@ -39,8 +47,9 @@ namespace SaberStudio.Modules.Browser.ViewModels
             set { SetProperty(ref beatMaps, value); }
         }
 
-        public MapCategoryViewModel(IBeatSaverClient beatSaverClient)
+        public MapCategoryViewModel(IBeatSaverClient beatSaverClient, IRegionManager regionManager)
         {
+            this.regionManager = regionManager;
             this.beatSaverClient = beatSaverClient;
             BeatMaps = new ObservableCollection<BeatMap>();
         }

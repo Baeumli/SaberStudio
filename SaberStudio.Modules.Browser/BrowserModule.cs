@@ -55,6 +55,7 @@ namespace SaberStudio.Modules.Browser
 
             containerRegistry.RegisterForNavigation<MapBrowserView, MapBrowserViewModel>();
             containerRegistry.RegisterForNavigation<MapCategoryView, MapCategoryViewModel>();
+            containerRegistry.RegisterForNavigation<MapDetailView, MapDetailViewModel>();
             containerRegistry.RegisterForNavigation<ViewA, ViewAViewModel>();
             regionManager.RequestNavigate(Regions.ContentRegion, typeof(ViewA).Name);
         }

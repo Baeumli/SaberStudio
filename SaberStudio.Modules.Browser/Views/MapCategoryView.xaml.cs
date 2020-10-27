@@ -37,6 +37,7 @@ namespace SaberStudio.Modules.Browser.Views
         private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var viewModel = DataContext as MapCategoryViewModel;
+            // TODO: Fix OutOfRangeException when going back via journaling
             viewModel.SelectedCommand.Execute(e.AddedItems[0] as BeatMap);
         }
     }
