@@ -1,0 +1,31 @@
+﻿<UserControl x:Class="SaberStudio.Modules.Browser.Views.ModBrowserView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:SaberStudio.Modules.Browser.Views"
+    xmlns:prism="http://prismlibrary.com/"
+    prism:ViewModelLocator.AutoWireViewModel="True">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="9*" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+        <ListBox ItemsSource="{Binding Mods}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <StackPanel
+            Grid.Row="1"
+            Orientation="Horizontal">
+            <Button
+                Command="{Binding GoToPreviousPageCommand}"
+                Content="&lt;--" />
+            <Button
+                Command="{Binding GoToNextPageCommand}"
+                Content="--&gt;" />
+            <TextBlock Text="{Binding CurrentPage}" />
+        </StackPanel>
+    </Grid>
+</UserControl>

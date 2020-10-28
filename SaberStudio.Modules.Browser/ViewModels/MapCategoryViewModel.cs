@@ -6,7 +6,6 @@ using SaberStudio.Core.Extensions;
 using SaberStudio.Modules.Browser.Views;
 using SaberStudio.Services.BeatSaver.Interfaces;
 using SaberStudio.Services.BeatSaver.Parser.Models;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading;

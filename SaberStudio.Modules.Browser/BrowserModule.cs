@@ -12,6 +12,8 @@ using System.Net.Http;
 using Prism.Unity;
 using Microsoft.Extensions.DependencyInjection;
 using Unity.Microsoft.DependencyInjection;
+using SaberStudio.Services.BeatMods.Interfaces;
+using SaberStudio.Services.BeatMods;
 
 namespace SaberStudio.Modules.Browser
 {
@@ -34,7 +36,7 @@ namespace SaberStudio.Modules.Browser
                 Items = new List<SidebarItem>()
                 {
                     new SidebarItem() { Title = "Maps", TargetView = typeof(MapBrowserView).Name },
-                    new SidebarItem() { Title = "Mods" },
+                    new SidebarItem() { Title = "Mods", TargetView = typeof(ModBrowserView).Name },
                 }
             };
             sidebarManager.Add(group);
@@ -52,7 +54,9 @@ namespace SaberStudio.Modules.Browser
             serviceCollection.BuildServiceProvider(containerRegistry.GetContainer());
 
             containerRegistry.Register<IBeatSaverClient, BeatSaverClient>();
+            containerRegistry.Register<IBeatModsClient, BeatModsClient>();
 
+            containerRegistry.RegisterForNavigation<ModBrowserView, ModBrowserViewModel>();
             containerRegistry.RegisterForNavigation<MapBrowserView, MapBrowserViewModel>();
             containerRegistry.RegisterForNavigation<MapCategoryView, MapCategoryViewModel>();
             containerRegistry.RegisterForNavigation<MapDetailView, MapDetailViewModel>();

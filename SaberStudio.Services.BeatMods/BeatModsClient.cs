@@ -1,6 +1,13 @@
-﻿using SaberStudio.Services.BeatMods.Interfaces;
+﻿using SaberStudio.Core.Extensions;
+using SaberStudio.Services.BeatMods.Interfaces;
+using SaberStudio.Services.BeatMods.Models;
+using SaberStudio.Services.BeatMods.Models.Parser;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace SaberStudio.Services.BeatMods
@@ -17,12 +24,25 @@ namespace SaberStudio.Services.BeatMods
             client.DefaultRequestHeaders.UserAgent.TryParseAdd("SaberStudio/0.1");
         }
 
-//        var query = HttpUtility.ParseQueryString(string.Empty);
-//        query["foo"] = "bar<>&-baz";
-//query["bar"] = "bazinga";
-//string queryString = query.ToString();
+        public async Task<IEnumerable<Mod>> GetMods(CancellationToken cancellationToken, string gameVersion, string search, string sort, SortOrder sortOrder, string status)
+        {
+            var query = HttpUtility.ParseQueryString("");
+            query["gameVersion"] = gameVersion;
+            query["search"] = search;
+            query["sort"] = sort;
+            query["sortDirection"] = Convert.ToString((int)sortOrder);
+            query["status"] = status;
 
+            var request = new HttpRequestMessage(HttpMethod.Get, "mod?" + query.ToString());
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-//        mod?search=&status=approved&gameVersion=1.12.2&sort=&sortDirection=1
+            using (var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken))
+            {
+                response.EnsureSuccessStatusCode();
+                var stream = await response.Content.ReadAsStreamAsync();
+                var mods = stream.DeserializeJsonFromStream<IEnumerable<Mod>>();
+                return mods;
+            }
+        }
     }
 }
