@@ -5,17 +5,49 @@
     xmlns:prism="http://prismlibrary.com/"
     prism:ViewModelLocator.AutoWireViewModel="True">
     <Grid>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="9*" />
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
-        <ListBox ItemsSource="{Binding Mods}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Name}" />
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+        <ListView
+            DisplayMemberPath="MapName"
+            ItemsSource="{Binding Mods}"
+            PreviewMouseWheel="ListView_PreviewMouseWheel"
+            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+            ScrollViewer.VerticalScrollBarVisibility="Disabled"
+            SelectionChanged="ListView_SelectionChanged"
+            SelectionMode="Single">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn
+                        DisplayMemberBinding="{Binding Name}"
+                        Header="Name" />
+                    <GridViewColumn
+                        DisplayMemberBinding="{Binding GameVersion}"
+                        Header="Version" />
+                    <GridViewColumn
+                        DisplayMemberBinding="{Binding Author.Username}"
+                        Header="Author" />
+                    <GridViewColumn>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Image
+                                    Source="{Binding CoverUrl}"
+                                    Stretch="Uniform" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="Download" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
         <StackPanel
             Grid.Row="1"
             Orientation="Horizontal">

@@ -57,6 +57,7 @@ namespace SaberStudio.Modules.Browser
             containerRegistry.Register<IBeatModsClient, BeatModsClient>();
 
             containerRegistry.RegisterForNavigation<ModBrowserView, ModBrowserViewModel>();
+            containerRegistry.RegisterForNavigation<ModDetailView, ModDetailViewModel>();
             containerRegistry.RegisterForNavigation<MapBrowserView, MapBrowserViewModel>();
             containerRegistry.RegisterForNavigation<MapCategoryView, MapCategoryViewModel>();
             containerRegistry.RegisterForNavigation<MapDetailView, MapDetailViewModel>();
