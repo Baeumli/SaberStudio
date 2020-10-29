@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace SaberStudio.Services.Steam
 {
-    public class SteamService
+    public class SteamService : ISteamService
     {
         public Dictionary<int, string> GetLibraryLocations(string steamAppsDirectory)
         {

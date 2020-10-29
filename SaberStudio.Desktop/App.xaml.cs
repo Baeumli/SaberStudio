@@ -3,6 +3,7 @@ using Prism.Modularity;
 using SaberStudio.Core;
 using SaberStudio.Desktop.Views;
 using SaberStudio.Modules.Browser;
+using SaberStudio.Modules.Library;
 using SaberStudio.Modules.Sidebar;
 using System.Windows;
 
@@ -26,6 +27,7 @@ namespace SaberStudio.Desktop
         protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)
         {
             moduleCatalog.AddModule(typeof(BrowserModule));
+            moduleCatalog.AddModule(typeof(LibraryModule));
             moduleCatalog.AddModule(typeof(SidebarModule));
         }
     }

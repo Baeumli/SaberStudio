@@ -23,16 +23,6 @@ namespace SaberStudio.Modules.Sidebar.ViewModels
             {
                 new SidebarGroup()
                 {
-                    Title = "Library",
-                    Items = new List<SidebarItem>()
-                    {
-                        new SidebarItem() { Title = "Maps" },
-                        new SidebarItem() { Title = "Mods" },
-                        new SidebarItem() { Title = "Favorites" }
-                    }
-                },
-                new SidebarGroup()
-                {
                     Title = "Playlists",
                     Items = new List<SidebarItem>()
                     {
