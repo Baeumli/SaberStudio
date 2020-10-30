@@ -12,7 +12,10 @@
 
         <ListView x:Name="MapList"
             DisplayMemberPath="MapName"
-            ItemsSource="{Binding BeatMaps}">
+            ItemsSource="{Binding BeatMaps}"
+            PreviewMouseWheel="MapList_PreviewMouseWheel"
+            SelectionChanged="MapList_SelectionChanged"
+            SelectionMode="Single">
 
             <ListView.View>
                 <GridView>
@@ -26,20 +29,10 @@
                     <GridViewColumn>
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Button
-                                    Command="{Binding DataContext.SelectedCommand, ElementName=MapList}"
-                                    CommandParameter="{Binding}"
-                                    Content="Detail" />
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-
-                    <GridViewColumn>
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
                                 <Image
-                                    Source="{Binding CoverImageFileName}"
-                                    Stretch="Uniform" />
+                                    Width="100"
+                                    Height="100"
+                                    Source="{Binding CoverImageFileName}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>

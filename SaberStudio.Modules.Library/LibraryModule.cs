@@ -41,6 +41,7 @@ namespace SaberStudio.Modules.Library
             containerRegistry.Register<ISteamService, SteamService>();
 
             containerRegistry.RegisterForNavigation<MapLibraryView, MapLibraryViewModel>();
+            containerRegistry.RegisterForNavigation<MapLibraryDetailView, MapLibraryDetailViewModel>();
 
         }
     }

@@ -17,7 +17,6 @@ namespace SaberStudio.Modules.Browser.ViewModels
         private string navigationPath;
         private IRegionManager regionManager;
 
-
         private DelegateCommand<BeatMap> selectedCommand;
         public DelegateCommand<BeatMap> SelectedCommand => selectedCommand ??= new DelegateCommand<BeatMap>(ExecuteSelectedCommand);
 
