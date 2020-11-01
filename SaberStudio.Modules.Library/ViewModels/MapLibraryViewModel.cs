@@ -2,11 +2,12 @@
 using Prism.Mvvm;
 using Prism.Regions;
 using SaberStudio.Core;
-using SaberStudio.Core.Extensions;
 using SaberStudio.Modules.Library.Views;
 using SaberStudio.Services.BeatSaber;
 using SaberStudio.Services.BeatSaber.Parser.Models;
 using System.Collections.ObjectModel;
+using Prism.Events;
+using SaberStudio.Core.Events;
 
 namespace SaberStudio.Modules.Library.ViewModels
 {
@@ -14,18 +15,17 @@ namespace SaberStudio.Modules.Library.ViewModels
     {
         private readonly IBeatSaberService beatSaberService;
         private readonly IRegionManager regionManager;
+        private readonly IEventAggregator eventAggregator;
+        
+        public ObservableCollection<BeatMap> BeatMaps { get; set; }
 
-        private ObservableCollection<BeatMap> beatMaps;
-        public ObservableCollection<BeatMap> BeatMaps
+        public MapLibraryViewModel(IBeatSaberService beatSaberService, IRegionManager regionManager, IEventAggregator eventAggregator)
         {
-            get => beatMaps;
-            set => SetProperty(ref beatMaps, value);
-        }
-
-        public MapLibraryViewModel(IBeatSaberService beatSaberService, IRegionManager regionManager)
-        {
+            this.eventAggregator = eventAggregator;
             this.regionManager = regionManager;
             this.beatSaberService = beatSaberService;
+            BeatMaps = new ObservableCollection<BeatMap>();
+            UpdateMapCollection();
         }
 
         private DelegateCommand<BeatMap> selectedCommand;
@@ -41,7 +41,6 @@ namespace SaberStudio.Modules.Library.ViewModels
             regionManager.RequestNavigate(Regions.ContentRegion, nameof(MapLibraryDetailView), navParams);
         }
 
-
         public bool IsNavigationTarget(NavigationContext navigationContext)
         {
             return true;
@@ -49,13 +48,19 @@ namespace SaberStudio.Modules.Library.ViewModels
 
         public void OnNavigatedFrom(NavigationContext navigationContext)
         {
-            
+            eventAggregator.GetEvent<MapLibraryChangedEvent>().Unsubscribe(UpdateMapCollection);
         }
 
         public void OnNavigatedTo(NavigationContext navigationContext)
         {
+            eventAggregator.GetEvent<MapLibraryChangedEvent>().Subscribe(UpdateMapCollection);
+        }
+        
+        private void UpdateMapCollection()
+        {
             var maps = beatSaberService.GetInstalledBeatMaps();
-            BeatMaps = maps.ToObservableCollection();
+            BeatMaps.Clear();
+            BeatMaps.AddRange(maps);
         }
     }
 }

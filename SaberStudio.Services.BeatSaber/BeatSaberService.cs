@@ -28,7 +28,6 @@ namespace SaberStudio.Services.BeatSaber
                 var mapDir = Path.GetDirectoryName(mapPath);
                 var map = JsonConvert.DeserializeObject<BeatMap>(json);
                 map.CoverImageFileName = Path.Combine(mapDir, map.CoverImageFileName);
-
                 yield return map;
             }
         }

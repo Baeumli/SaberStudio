@@ -20,6 +20,14 @@ namespace SaberStudio.Modules.Browser.ViewModels
         private DelegateCommand<BeatMap> selectedCommand;
         public DelegateCommand<BeatMap> SelectedCommand => selectedCommand ??= new DelegateCommand<BeatMap>(ExecuteSelectedCommand);
 
+        private DelegateCommand<BeatMap> downloadCommand;
+        public DelegateCommand<BeatMap> DownloadCommand => downloadCommand ??= new DelegateCommand<BeatMap>(ExecuteDownloadCommand);
+
+        private void ExecuteDownloadCommand(BeatMap map)
+        {
+            beatSaverClient.DownloadMap(CancellationToken.None, map);
+        }
+
         private void ExecuteSelectedCommand(BeatMap map)
         {
             var navParams = new NavigationParameters

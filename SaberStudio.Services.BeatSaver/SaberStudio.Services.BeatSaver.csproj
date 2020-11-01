@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SaberStudio.Core\SaberStudio.Core.csproj" />
+    <ProjectReference Include="..\SaberStudio.Services.BeatSaber\SaberStudio.Services.BeatSaber.csproj" />
   </ItemGroup>
 
 </Project>

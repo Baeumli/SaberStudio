@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using SaberStudio.Services.BeatSaver.Parser.Models;
 
 namespace SaberStudio.Services.BeatSaver.Interfaces
 {
@@ -14,7 +15,7 @@ namespace SaberStudio.Services.BeatSaver.Interfaces
         
         public Task<IEnumerable<Parser.Models.BeatMap>> GetByUploaderId(CancellationToken cancellationToken, string uploaderId, int pageNumber = 0);
         
-        public Task<string> DownloadMap(CancellationToken cancellationToken, string downloadUrl, string fileName);
+        public Task DownloadMap(CancellationToken cancellationToken, BeatMap map);
         
         public Task<IEnumerable<Parser.Models.BeatMap>> GetTrendingMaps(CancellationToken cancellationToken, int pageNumber = 0);
         
