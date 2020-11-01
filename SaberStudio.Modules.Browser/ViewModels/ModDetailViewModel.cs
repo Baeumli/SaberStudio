@@ -12,13 +12,13 @@ namespace SaberStudio.Modules.Browser.ViewModels
         private Mod mod;
         public Mod Mod
         {
-            get { return mod; }
-            set { SetProperty(ref mod, value); }
+            get => mod;
+            set => SetProperty(ref mod, value);
         }
 
         public bool IsNavigationTarget(NavigationContext navigationContext)
         {
-            var newMod = navigationContext.Parameters["Mod"] as Mod;
+            var newMod = navigationContext.Parameters[nameof(Mod)] as Mod;
             return newMod == Mod;
         }
 
@@ -28,7 +28,7 @@ namespace SaberStudio.Modules.Browser.ViewModels
 
         public void OnNavigatedTo(NavigationContext navigationContext)
         {
-            Mod = navigationContext.Parameters["Mod"] as Mod;
+            Mod = navigationContext.Parameters[nameof(Mod)] as Mod;
 
         }
     }

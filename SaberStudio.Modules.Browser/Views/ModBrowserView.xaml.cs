@@ -30,17 +30,15 @@ namespace SaberStudio.Modules.Browser.Views
         /// </summary>
         private void ListView_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
-            if (!e.Handled)
+            if (e.Handled) return;
+            e.Handled = true;
+            var eventArg = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta)
             {
-                e.Handled = true;
-                var eventArg = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta)
-                {
-                    RoutedEvent = MouseWheelEvent,
-                    Source = sender
-                };
-                var parent = ((Control)sender).Parent as UIElement;
-                parent.RaiseEvent(eventArg);
-            }
+                RoutedEvent = MouseWheelEvent,
+                Source = sender
+            };
+            var parent = ((Control)sender).Parent as UIElement;
+            parent.RaiseEvent(eventArg);
         }
 
         private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)

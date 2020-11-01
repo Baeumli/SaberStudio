@@ -20,7 +20,7 @@ namespace SaberStudio.Modules.Browser
     public class BrowserModule : IModule
     {
         private readonly IRegionManager regionManager;
-        private ISidebarManager sidebarManager;
+        private readonly ISidebarManager sidebarManager;
 
         public BrowserModule(IRegionManager regionManager, ISidebarManager sidebarManager)
         {
@@ -35,8 +35,8 @@ namespace SaberStudio.Modules.Browser
                 Title = "Browse",
                 Items = new List<SidebarItem>()
                 {
-                    new SidebarItem() { Title = "Maps", TargetView = typeof(MapBrowserView).Name },
-                    new SidebarItem() { Title = "Mods", TargetView = typeof(ModBrowserView).Name },
+                    new SidebarItem() { Title = "Maps", TargetView = nameof(MapBrowserView) },
+                    new SidebarItem() { Title = "Mods", TargetView = nameof(ModBrowserView) },
                 }
             };
             sidebarManager.Add(group);
@@ -62,7 +62,7 @@ namespace SaberStudio.Modules.Browser
             containerRegistry.RegisterForNavigation<MapCategoryView, MapCategoryViewModel>();
             containerRegistry.RegisterForNavigation<MapDetailView, MapDetailViewModel>();
             containerRegistry.RegisterForNavigation<ViewA, ViewAViewModel>();
-            regionManager.RequestNavigate(Regions.ContentRegion, typeof(ViewA).Name);
+            regionManager.RequestNavigate(Regions.ContentRegion, nameof(ViewA));
         }
     }
 }

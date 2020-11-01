@@ -13,7 +13,7 @@ namespace SaberStudio.Modules.Sidebar.ViewModels
     {
         public List<SidebarGroup> Groups { get; set; }
 
-        private IRegionManager regionManager;
+        private readonly IRegionManager regionManager;
 
         public SidebarViewModel(IRegionManager regionManager, ISidebarManager sidebarManager)
         {

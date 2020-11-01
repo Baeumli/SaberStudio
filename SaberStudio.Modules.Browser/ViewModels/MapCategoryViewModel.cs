@@ -15,7 +15,7 @@ namespace SaberStudio.Modules.Browser.ViewModels
     public class MapCategoryViewModel : BindableBase, INavigationAware
     {
         private string navigationPath;
-        private IRegionManager regionManager;
+        private readonly IRegionManager regionManager;
 
         private DelegateCommand<BeatMap> selectedCommand;
         public DelegateCommand<BeatMap> SelectedCommand => selectedCommand ??= new DelegateCommand<BeatMap>(ExecuteSelectedCommand);
@@ -27,22 +27,22 @@ namespace SaberStudio.Modules.Browser.ViewModels
                     { "BeatMap",  map }
                 };
 
-            regionManager.RequestNavigate(Regions.ContentRegion, typeof(MapDetailView).Name, navParams);
+            regionManager.RequestNavigate(Regions.ContentRegion, nameof(MapDetailView), navParams);
         }
 
         private int currentPage = 1;
         public int CurrentPage
         {
-            get { return currentPage; }
-            set { SetProperty(ref currentPage, value); }
+            get => currentPage;
+            set => SetProperty(ref currentPage, value);
         }
 
         private readonly IBeatSaverClient beatSaverClient;
         private ObservableCollection<BeatMap> beatMaps;
         public ObservableCollection<BeatMap> BeatMaps
         {
-            get { return beatMaps; }
-            set { SetProperty(ref beatMaps, value); }
+            get => beatMaps;
+            set => SetProperty(ref beatMaps, value);
         }
 
         public MapCategoryViewModel(IBeatSaverClient beatSaverClient, IRegionManager regionManager)

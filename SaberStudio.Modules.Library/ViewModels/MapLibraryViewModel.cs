@@ -18,8 +18,8 @@ namespace SaberStudio.Modules.Library.ViewModels
         private ObservableCollection<BeatMap> beatMaps;
         public ObservableCollection<BeatMap> BeatMaps
         {
-            get { return beatMaps; }
-            set { SetProperty(ref beatMaps, value); }
+            get => beatMaps;
+            set => SetProperty(ref beatMaps, value);
         }
 
         public MapLibraryViewModel(IBeatSaberService beatSaberService, IRegionManager regionManager)
@@ -38,7 +38,7 @@ namespace SaberStudio.Modules.Library.ViewModels
                     { "BeatMap",  map }
                 };
 
-            regionManager.RequestNavigate(Regions.ContentRegion, typeof(MapLibraryDetailView).Name, navParams);
+            regionManager.RequestNavigate(Regions.ContentRegion, nameof(MapLibraryDetailView), navParams);
         }
 
 

@@ -14,12 +14,10 @@ namespace SaberStudio.Core.Extensions
             if (!stream.CanRead)
                 throw new NotSupportedException("Cannot read from unsupported stream");
 
-            using (var streamReader = new StreamReader(stream))
-            using (var jsonTextReader = new JsonTextReader(streamReader))
-            {
-                var jsonSerializer = new JsonSerializer();
-                return jsonSerializer.Deserialize<T>(jsonTextReader);
-            }
+            using var streamReader = new StreamReader(stream);
+            using var jsonTextReader = new JsonTextReader(streamReader);
+            var jsonSerializer = new JsonSerializer();
+            return jsonSerializer.Deserialize<T>(jsonTextReader);
         }
     }
 }

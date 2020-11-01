@@ -2,8 +2,8 @@
 {
     public static class Regions
     {
-        public static string ContentRegion = "ContentRegion";
-        public static string TopRegion = "TopRegion";
-        public static string LeftRegion = "LeftRegion";
+        public const string ContentRegion = "ContentRegion";
+        public const string TopRegion = "TopRegion";
+        public const string LeftRegion = "LeftRegion";
     }
 }

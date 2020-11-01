@@ -9,8 +9,8 @@ namespace SaberStudio.Modules.Browser.ViewModels
         private BeatMap beatMap;
         public BeatMap BeatMap
         {
-            get { return beatMap; }
-            set { SetProperty(ref beatMap, value); }
+            get => beatMap;
+            set => SetProperty(ref beatMap, value);
         }
 
         public bool IsNavigationTarget(NavigationContext navigationContext)

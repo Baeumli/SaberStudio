@@ -23,8 +23,8 @@ namespace SaberStudio.Modules.Browser.ViewModels
         private ObservableCollection<Mod> mods;
         public ObservableCollection<Mod> Mods
         {
-            get { return mods; }
-            set { SetProperty(ref mods, value); }
+            get => mods;
+            set => SetProperty(ref mods, value);
         }
 
         private DelegateCommand<Mod> selectedCommand;
@@ -37,14 +37,14 @@ namespace SaberStudio.Modules.Browser.ViewModels
                     { "Mod",  mod }
                 };
 
-            regionManager.RequestNavigate(Regions.ContentRegion, typeof(ModDetailView).Name, navParams);
+            regionManager.RequestNavigate(Regions.ContentRegion, nameof(ModDetailView), navParams);
         }
 
         private int currentPage = 1;
         public int CurrentPage
         {
-            get { return currentPage; }
-            set { SetProperty(ref currentPage, value); }
+            get => currentPage;
+            set => SetProperty(ref currentPage, value);
         }
 
         public ModBrowserViewModel(IBeatModsClient beatModsClient, IRegionManager regionManager)

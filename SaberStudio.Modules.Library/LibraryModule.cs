@@ -1,7 +1,6 @@
 ﻿using SaberStudio.Modules.Library.Views;
 using Prism.Ioc;
 using Prism.Modularity;
-using Prism.Regions;
 using SaberStudio.Services.BeatSaber;
 using SaberStudio.Modules.Library.ViewModels;
 using SaberStudio.Core;
@@ -13,7 +12,7 @@ namespace SaberStudio.Modules.Library
 {
     public class LibraryModule : IModule
     {
-        private ISidebarManager sidebarManager;
+        private readonly ISidebarManager sidebarManager;
 
         public LibraryModule(ISidebarManager sidebarManager)
         {
@@ -27,7 +26,7 @@ namespace SaberStudio.Modules.Library
                 Title = "Library",
                 Items = new List<SidebarItem>()
                 {
-                    new SidebarItem() { Title = "Maps", TargetView = typeof(MapLibraryView).Name },
+                    new SidebarItem() { Title = "Maps", TargetView = nameof(MapLibraryView) },
                     new SidebarItem() { Title = "Mods" },
                     new SidebarItem() { Title = "Favorites" }
                 }
@@ -42,7 +41,6 @@ namespace SaberStudio.Modules.Library
 
             containerRegistry.RegisterForNavigation<MapLibraryView, MapLibraryViewModel>();
             containerRegistry.RegisterForNavigation<MapLibraryDetailView, MapLibraryDetailViewModel>();
-
         }
     }
 }

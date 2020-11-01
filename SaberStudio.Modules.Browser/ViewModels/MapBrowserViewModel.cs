@@ -12,7 +12,7 @@ namespace SaberStudio.Modules.Browser.ViewModels
 {
     public class MapBrowserViewModel : BindableBase, INavigationAware
     {
-        private IRegionManager regionManager;
+        private readonly IRegionManager regionManager;
 
         public List<Tile> Categories { get; set; }
 
@@ -25,31 +25,31 @@ namespace SaberStudio.Modules.Browser.ViewModels
                 new Tile()
                 {
                     Content = "Trending",
-                    TargetView = typeof(MapCategoryView).Name,
+                    TargetView = nameof(MapCategoryView),
                     NavigationPath = NavigationPaths.TrendingMaps.ToString()
                 },
                 new Tile()
                 {
                     Content = "Top Rated",
-                    TargetView = typeof(MapCategoryView).Name,
+                    TargetView = nameof(MapCategoryView),
                     NavigationPath = NavigationPaths.TopRatedMaps.ToString()
                 },
                 new Tile()
                 {
                     Content = "Latest",
-                    TargetView = typeof(MapCategoryView).Name,
+                    TargetView = nameof(MapCategoryView),
                     NavigationPath = NavigationPaths.LatestMaps.ToString()
                 },
                 new Tile()
                 {
                     Content = "Most Downloaded",
-                    TargetView = typeof(MapCategoryView).Name,
+                    TargetView = nameof(MapCategoryView),
                     NavigationPath = NavigationPaths.MostDownloadedMaps.ToString()
                 },
                 new Tile()
                 {
                     Content = "Most Played",
-                    TargetView = typeof(MapCategoryView).Name,
+                    TargetView = nameof(MapCategoryView),
                     NavigationPath = NavigationPaths.MostPlayedMaps.ToString()
                 }
             };
@@ -79,15 +79,13 @@ namespace SaberStudio.Modules.Browser.ViewModels
 
             var activeView = regionManager.Regions[Regions.ContentRegion].ActiveViews.FirstOrDefault();
 
-            if (activeView.GetType().Name != tile.TargetView)
+            if (nameof(activeView) == tile.TargetView) return;
+            var navParams = new NavigationParameters
             {
-                var navParams = new NavigationParameters
-                {
-                    { "NavigationPath",  tile.NavigationPath }
-                };
+                { "NavigationPath",  tile.NavigationPath }
+            };
 
-                regionManager.RequestNavigate(Regions.ContentRegion, tile.TargetView, navParams);
-            }
+            regionManager.RequestNavigate(Regions.ContentRegion, tile.TargetView, navParams);
         }
     }
 }

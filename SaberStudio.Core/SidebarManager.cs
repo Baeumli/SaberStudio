@@ -12,7 +12,7 @@ namespace SaberStudio.Core
             Groups.Add(group);
         }
 
-        public void AddRange(List<SidebarGroup> groups)
+        public void AddRange(IEnumerable<SidebarGroup> groups)
         {
             Groups.AddRange(groups);
         }

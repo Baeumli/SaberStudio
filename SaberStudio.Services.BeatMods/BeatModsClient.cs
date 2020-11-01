@@ -36,13 +36,11 @@ namespace SaberStudio.Services.BeatMods
             var request = new HttpRequestMessage(HttpMethod.Get, "mod?" + query.ToString());
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            using (var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken))
-            {
-                response.EnsureSuccessStatusCode();
-                var stream = await response.Content.ReadAsStreamAsync();
-                var mods = stream.DeserializeJsonFromStream<IEnumerable<Mod>>();
-                return mods;
-            }
+            using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+            response.EnsureSuccessStatusCode();
+            var stream = await response.Content.ReadAsStreamAsync();
+            var mods = stream.DeserializeJsonFromStream<IEnumerable<Mod>>();
+            return mods;
         }
     }
 }

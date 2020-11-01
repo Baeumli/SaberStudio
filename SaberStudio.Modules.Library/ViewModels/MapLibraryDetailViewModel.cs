@@ -9,13 +9,12 @@ namespace SaberStudio.Modules.Library.ViewModels
         private BeatMap beatMap;
         public BeatMap BeatMap
         {
-            get { return beatMap; }
-            set { SetProperty(ref beatMap, value); }
+            get => beatMap;
+            set => SetProperty(ref beatMap, value);
         }
-
         public bool IsNavigationTarget(NavigationContext navigationContext)
         {
-            var newMap = navigationContext.Parameters["BeatMap"] as BeatMap;
+            var newMap = navigationContext.Parameters[nameof(BeatMap)] as BeatMap;
             return newMap == BeatMap;
         }
 
@@ -25,7 +24,7 @@ namespace SaberStudio.Modules.Library.ViewModels
 
         public void OnNavigatedTo(NavigationContext navigationContext)
         {
-            BeatMap = navigationContext.Parameters["BeatMap"] as BeatMap;
+            BeatMap = navigationContext.Parameters[nameof(BeatMap)] as BeatMap;
         }
     }
 }

@@ -4,6 +4,7 @@
     xmlns:core="clr-namespace:SaberStudio.Core;assembly=SaberStudio.Core"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:prism="http://prismlibrary.com/"
+    xmlns:ns0="using:SaberStudio.Core"
     Title="{Binding Title}"
     Width="525"
     Height="350"

@@ -6,7 +6,7 @@ namespace SaberStudio.Core
     public interface ISidebarManager
     {
         public void Add(SidebarGroup group);
-        public void AddRange(List<SidebarGroup> groups);
+        public void AddRange(IEnumerable<SidebarGroup> groups);
         public void Remove(SidebarGroup group);
         public IEnumerable<SidebarGroup> GetAll();
     }

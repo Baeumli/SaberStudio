@@ -8,8 +8,8 @@ namespace SaberStudio.Desktop.ViewModels
 
         public string Title
         {
-            get { return _title; }
-            set { SetProperty(ref _title, value); }
+            get => _title;
+            set => SetProperty(ref _title, value);
         }
     }
 }

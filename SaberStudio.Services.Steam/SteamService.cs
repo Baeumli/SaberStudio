@@ -11,38 +11,33 @@ namespace SaberStudio.Services.Steam
         {
             var libraryFolders = Path.Combine(steamAppsDirectory, "libraryfolders.vdf");
 
-            if (File.Exists(libraryFolders))
+            if (!File.Exists(libraryFolders))
+                throw new FileNotFoundException("libraryfolders.vdf was not found");
+
+            using var reader = new StreamReader(libraryFolders);
+            var content = reader.ReadToEnd();
+            var matches = Regex.Matches(content, "\"(.*)\"\t*\"(.*)\"");
+            var locations = new Dictionary<int, string>();
+            foreach (Match match in matches)
             {
-                using (var reader = new StreamReader(libraryFolders))
+                if (int.TryParse(match.Groups[1].Value, out int key))
                 {
-                    var content = reader.ReadToEnd();
-                    var matches = Regex.Matches(content, "\"(.*)\"\t*\"(.*)\"");
-                    var locations = new Dictionary<int, string>();
-                    foreach (Match match in matches)
-                    {
-                        if (int.TryParse(match.Groups[1].Value, out int key))
-                        {
-                            locations.Add(key, match.Groups[2].Value);
-                        }
-                    }
-                    return locations;
+                    locations.Add(key, match.Groups[2].Value);
                 }
             }
-            throw new FileNotFoundException("libraryfolders.vdf was not found");
+            return locations;
         }
 
         public string GetBaseDirectory()
         {
-            using (RegistryKey key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Valve\Steam"))
+            using var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Valve\Steam");
+            if (key == null)
+                throw new DirectoryNotFoundException("Steam installation folder was not found");
+            
+            var value = key.GetValue("InstallPath");
+            if (value != null)
             {
-                if (key != null)
-                {
-                    object value = key.GetValue("InstallPath");
-                    if (value != null)
-                    {
-                        return value.ToString();
-                    }
-                }
+                return value.ToString();
             }
             throw new DirectoryNotFoundException("Steam installation folder was not found");
         }
