@@ -9,6 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SaberStudio.Core\SaberStudio.Core.csproj" />
     <ProjectReference Include="..\SaberStudio.Services.Steam\SaberStudio.Services.Steam.csproj" />
   </ItemGroup>
 

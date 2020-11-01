@@ -6,7 +6,10 @@ namespace SaberStudio.Services.BeatSaver.Parser.Models
     public class BeatMap
     {
         [JsonProperty("coverURL")]
-        public string CoverUrl { get; set; }
+        private string RelativeCoverUrl { get; set; }
+        
+        [JsonIgnore]
+        public string CoverUrl => new Uri(new Uri("https://beatsaver.com/"), RelativeCoverUrl).ToString();
 
         [JsonProperty("description")]
         public string Description { get; set; }

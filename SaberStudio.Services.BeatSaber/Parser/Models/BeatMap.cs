@@ -5,6 +5,8 @@ namespace SaberStudio.Services.BeatSaber.Parser.Models
 {
     public class BeatMap
     {
+        public string FolderLocation { get; set; }
+
         [JsonProperty("_version")]
         public string Version { get; set; }
 

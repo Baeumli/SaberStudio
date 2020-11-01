@@ -8,6 +8,7 @@ using SaberStudio.Services.BeatSaber.Parser.Models;
 using System.Collections.ObjectModel;
 using Prism.Events;
 using SaberStudio.Core.Events;
+using SaberStudio.Core.Util;
 
 namespace SaberStudio.Modules.Library.ViewModels
 {
@@ -39,6 +40,16 @@ namespace SaberStudio.Modules.Library.ViewModels
                 };
 
             regionManager.RequestNavigate(Regions.ContentRegion, nameof(MapLibraryDetailView), navParams);
+        }
+        
+        private DelegateCommand<BeatMap> deleteMapCommand;
+        public DelegateCommand<BeatMap> DeleteMapCommand => deleteMapCommand ??= new DelegateCommand<BeatMap>(ExecuteDeleteMapCommand);
+
+        private void ExecuteDeleteMapCommand(BeatMap map)
+        {
+            beatSaberService.DeleteBeatMap(map);
+            eventAggregator.GetEvent<MapLibraryChangedEvent>().Publish();
+
         }
 
         public bool IsNavigationTarget(NavigationContext navigationContext)

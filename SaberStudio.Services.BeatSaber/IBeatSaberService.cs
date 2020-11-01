@@ -8,5 +8,6 @@ namespace SaberStudio.Services.BeatSaber
         string GetBaseDirectory();
         string GetCustomLevelsDirectory();
         IEnumerable<BeatMap> GetInstalledBeatMaps();
+        void DeleteBeatMap(BeatMap beatMap);
     }
 }

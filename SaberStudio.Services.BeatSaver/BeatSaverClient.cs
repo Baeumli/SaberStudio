@@ -10,7 +10,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Prism.Events;
 using SaberStudio.Core.Events;
+using SaberStudio.Core.Util;
 using SaberStudio.Services.BeatSaber;
+using SaberStudio.Services.BeatSaber.Utils;
 using SaberStudio.Services.BeatSaver.Parser.Models;
 
 namespace SaberStudio.Services.BeatSaver
@@ -32,7 +34,7 @@ namespace SaberStudio.Services.BeatSaver
 
         public async Task DownloadMap(CancellationToken cancellationToken, BeatMap map)
         {
-            var folderName = GetFormattedMapName(map);
+            var folderName = MapHelper.GetFormattedMapName(map.MapKey, map.Metadata.SongName, map.Metadata.SongAuthor);
             var levelsDirectory = beatSaberService.GetCustomLevelsDirectory();
             var savePath = Path.Combine(levelsDirectory, folderName);
             
@@ -43,86 +45,15 @@ namespace SaberStudio.Services.BeatSaver
             var tempPath = Path.Combine(Path.GetTempPath(), "SaberStudio", folderName);
             var zipFile = Path.Combine(tempPath, folderName + ".zip");
             
-            CreateFolder(tempPath);
+            FileHelper.CreateFolder(tempPath);
 
             await using var stream = await response.Content.ReadAsStreamAsync();
-            await CreateFileFromStream(stream, zipFile, true);
+            await FileHelper.CreateFileFromStream(stream, zipFile, true);
 
-            ExtractZip(zipFile, savePath);
+            FileHelper.ExtractZip(zipFile, savePath);
             eventAggregator.GetEvent<MapLibraryChangedEvent>().Publish();
         }
 
-        private void ExtractZip(string archive, string savePath)
-        {
-            DeleteFolder(savePath, true);
-
-            using (var zip = ZipFile.OpenRead(archive))
-            {
-                zip.ExtractToDirectory(savePath);
-            }
-
-            DeleteFile(archive);
-        }
-        
-        public void DeleteFile(string filePath)
-        {
-            File.Delete(filePath);
-        }
-        
-        public void DeleteFolder(string folderPath, bool recursive)
-        {
-            if (string.IsNullOrWhiteSpace(folderPath))
-                throw new ArgumentNullException("parameter is empty");
-
-            if (FolderExists(folderPath))
-                Directory.Delete(folderPath, recursive);
-        }
-        
-        public void CreateFolder(string folderPath)
-        {
-            if (string.IsNullOrWhiteSpace(folderPath))
-                throw new ArgumentNullException("parameter is empty");
-
-            // Checking if the folder exists is not necessary
-            // See: https://docs.microsoft.com/en-us/dotnet/api/system.io.directory.createdirectory
-
-            Directory.CreateDirectory(folderPath);
-        }
-        
-        public async Task CreateFileFromStream(Stream stream, string outputPath, bool overwrite)
-        {
-            if (stream == null)
-                throw new ArgumentNullException(nameof(stream));
-
-            if (!stream.CanRead)
-                throw new NotSupportedException("Cannot read from unsupported stream");
-
-            if (string.IsNullOrWhiteSpace(outputPath))
-                throw new ArgumentNullException("parameter is empty");
-
-            if (FileExists(outputPath) && overwrite == false)
-                return;
-
-            await using var fileStream = File.Create(outputPath);
-            await stream.CopyToAsync(fileStream);
-        }
-        
-        public bool FileExists(string filePath)
-        {
-            if (string.IsNullOrWhiteSpace(filePath))
-                throw new ArgumentNullException("parameter is empty");
-
-            return File.Exists(filePath);
-        }
-
-        public bool FolderExists(string folderPath)
-        {
-            if (string.IsNullOrWhiteSpace(folderPath))
-                throw new ArgumentNullException("parameter is empty");
-
-            return Directory.Exists(folderPath);
-        }
-        
         public async Task<IEnumerable<Parser.Models.BeatMap>> GetByHash(CancellationToken cancellationToken, string hash)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, "maps/by-hash/" + hash);
@@ -146,19 +77,12 @@ namespace SaberStudio.Services.BeatSaver
             var request = new HttpRequestMessage(HttpMethod.Get, "search/text/" + pageNumber + "?q=" + searchQuery);
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            using (var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken))
-            {
-                response.EnsureSuccessStatusCode();
-                var stream = await response.Content.ReadAsStreamAsync();
-                var docs = stream.DeserializeJsonFromStream<Parser.Models.Docs>();
+            using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+            response.EnsureSuccessStatusCode();
+            var stream = await response.Content.ReadAsStreamAsync();
+            var docs = stream.DeserializeJsonFromStream<Parser.Models.Docs>();
 
-                return docs.BeatMaps;
-            }
-        }
-
-        private string GetFormattedMapName(BeatMap map)
-        {
-            return $"{map.MapKey} ({map.Metadata.SongName} - {map.Metadata.SongAuthor})";
+            return docs.BeatMaps;
         }
         
         public Task<IEnumerable<Parser.Models.BeatMap>> GetByUploaderId(CancellationToken cancellationToken, string uploaderId, int pageNumber = 0)
@@ -171,14 +95,12 @@ namespace SaberStudio.Services.BeatSaver
             var request = new HttpRequestMessage(HttpMethod.Get, "maps/latest/" + pageNumber);
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            using (var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken))
-            {
-                response.EnsureSuccessStatusCode();
-                var stream = await response.Content.ReadAsStreamAsync();
-                var docs = stream.DeserializeJsonFromStream<Parser.Models.Docs>();
+            using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+            response.EnsureSuccessStatusCode();
+            var stream = await response.Content.ReadAsStreamAsync();
+            var docs = stream.DeserializeJsonFromStream<Parser.Models.Docs>();
 
-                return docs.BeatMaps;
-            }
+            return docs.BeatMaps;
         }
 
         public async Task<IEnumerable<Parser.Models.BeatMap>> GetMostDownloadedMaps(CancellationToken cancellationToken, int pageNumber = 0)
@@ -186,14 +108,12 @@ namespace SaberStudio.Services.BeatSaver
             var request = new HttpRequestMessage(HttpMethod.Get, "maps/downloads/" + pageNumber);
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            using (var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken))
-            {
-                response.EnsureSuccessStatusCode();
-                var stream = await response.Content.ReadAsStreamAsync();
-                var docs = stream.DeserializeJsonFromStream<Parser.Models.Docs>();
+            using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+            response.EnsureSuccessStatusCode();
+            var stream = await response.Content.ReadAsStreamAsync();
+            var docs = stream.DeserializeJsonFromStream<Parser.Models.Docs>();
 
-                return docs.BeatMaps;
-            }
+            return docs.BeatMaps;
         }
 
         public async Task<IEnumerable<Parser.Models.BeatMap>> GetMostPlayedMaps(CancellationToken cancellationToken, int pageNumber = 0)
@@ -201,14 +121,12 @@ namespace SaberStudio.Services.BeatSaver
             var request = new HttpRequestMessage(HttpMethod.Get, "maps/plays/" + pageNumber);
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            using (var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken))
-            {
-                response.EnsureSuccessStatusCode();
-                var stream = await response.Content.ReadAsStreamAsync();
-                var docs = stream.DeserializeJsonFromStream<Parser.Models.Docs>();
+            using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+            response.EnsureSuccessStatusCode();
+            var stream = await response.Content.ReadAsStreamAsync();
+            var docs = stream.DeserializeJsonFromStream<Parser.Models.Docs>();
 
-                return docs.BeatMaps;
-            }
+            return docs.BeatMaps;
         }
 
         public async Task<IEnumerable<Parser.Models.BeatMap>> GetTopRatedMaps(CancellationToken cancellationToken, int pageNumber = 0)
@@ -216,14 +134,12 @@ namespace SaberStudio.Services.BeatSaver
             var request = new HttpRequestMessage(HttpMethod.Get, "maps/rating/" + pageNumber);
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            using (var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken))
-            {
-                response.EnsureSuccessStatusCode();
-                var stream = await response.Content.ReadAsStreamAsync();
-                var docs = stream.DeserializeJsonFromStream<Parser.Models.Docs>();
+            using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+            response.EnsureSuccessStatusCode();
+            var stream = await response.Content.ReadAsStreamAsync();
+            var docs = stream.DeserializeJsonFromStream<Parser.Models.Docs>();
 
-                return docs.BeatMaps;
-            }
+            return docs.BeatMaps;
         }
 
         public async Task<IEnumerable<Parser.Models.BeatMap>> GetTrendingMaps(CancellationToken cancellationToken, int pageNumber = 0)
@@ -231,14 +147,12 @@ namespace SaberStudio.Services.BeatSaver
             var request = new HttpRequestMessage(HttpMethod.Get, "maps/hot/" + pageNumber);
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            using (var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken))
-            {
-                response.EnsureSuccessStatusCode();
-                var stream = await response.Content.ReadAsStreamAsync();
-                var docs = stream.DeserializeJsonFromStream<Parser.Models.Docs>();
+            using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+            response.EnsureSuccessStatusCode();
+            var stream = await response.Content.ReadAsStreamAsync();
+            var docs = stream.DeserializeJsonFromStream<Parser.Models.Docs>();
 
-                return docs.BeatMaps;
-            }
+            return docs.BeatMaps;
         }
     }
 }

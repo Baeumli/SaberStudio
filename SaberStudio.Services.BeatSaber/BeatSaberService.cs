@@ -5,6 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Prism.Events;
+using SaberStudio.Core.Events;
+using SaberStudio.Core.Util;
+using SaberStudio.Services.BeatSaber.Utils;
 
 namespace SaberStudio.Services.BeatSaber
 {
@@ -25,11 +29,17 @@ namespace SaberStudio.Services.BeatSaber
             foreach (var mapPath in mapPaths)
             {
                 var json = File.ReadAllText(mapPath);
-                var mapDir = Path.GetDirectoryName(mapPath);
                 var map = JsonConvert.DeserializeObject<BeatMap>(json);
-                map.CoverImageFileName = Path.Combine(mapDir, map.CoverImageFileName);
+                map.FolderLocation = Path.GetDirectoryName(mapPath);
+                map.CoverImageFileName = Path.Combine(map.FolderLocation, map.CoverImageFileName);
                 yield return map;
             }
+        }
+
+        public void DeleteBeatMap(BeatMap beatMap)
+        {
+            var mapFolder = Path.Combine(GetCustomLevelsDirectory(), beatMap.FolderLocation);
+            FileHelper.DeleteFolder(mapFolder, true);
         }
 
         public IEnumerable<Playlist> GetPlaylists()
@@ -72,5 +82,7 @@ namespace SaberStudio.Services.BeatSaber
         {
             return Path.Combine(GetBaseDirectory(), @"Beat Saber_Data\CustomLevels");
         }
+        
+        
     }
 }
