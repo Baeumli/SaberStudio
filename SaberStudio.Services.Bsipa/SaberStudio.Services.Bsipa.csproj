@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\SaberStudio.Services.BeatMods\SaberStudio.Services.BeatMods.csproj" />
+      <ProjectReference Include="..\SaberStudio.Services.BeatSaber\SaberStudio.Services.BeatSaber.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -24,7 +24,7 @@ namespace SaberStudio.Services.BeatMods
             client.DefaultRequestHeaders.UserAgent.TryParseAdd("SaberStudio/0.1");
         }
 
-        public async Task<IEnumerable<Mod>> GetMods(CancellationToken cancellationToken, string gameVersion, string search, string sort, SortOrder sortOrder, string status)
+        public async Task<IEnumerable<Mod>> GetMods(CancellationToken cancellationToken, string gameVersion = "", string search = "", string sort = "", SortOrder sortOrder = SortOrder.Descending, string status = "")
         {
             var query = HttpUtility.ParseQueryString("");
             query["gameVersion"] = gameVersion;
