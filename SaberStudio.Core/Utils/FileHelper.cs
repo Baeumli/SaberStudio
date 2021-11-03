@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
+using System.Security;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
@@ -50,8 +54,10 @@ namespace SaberStudio.Core.Util
             if (FileExists(outputPath) && overwrite == false)
                 return;
 
-            await using var fileStream = File.Create(outputPath);
-            await stream.CopyToAsync(fileStream);
+            await using (var fileStream = File.Create(outputPath))
+            {
+                await stream.CopyToAsync(fileStream);
+            }
         }
         
         public static bool FileExists(string filePath)
@@ -64,23 +70,53 @@ namespace SaberStudio.Core.Util
         
         public static void DeleteFile(string filePath)
         {
-            File.Delete(filePath);
+            try
+            {
+                File.Delete(filePath);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                throw;
+            }
         }
         
-        public static void ExtractZip(string archive, string savePath)
+        public static void ExtractZip(string archive, string savePath, IEnumerable<string> fileHashes)
         {
-            DeleteFolder(savePath, true);
+            try
+            {
+                var zipHashes = new List<string>();
 
-            using var zip = ZipFile.OpenRead(archive);
-            zip.ExtractToDirectory(savePath);
+                using (var zip = ZipFile.OpenRead(archive))
+                {
+                    foreach (var zippedFile in zip.Entries)
+                    {
+                        using (var md5 = MD5.Create())
+                        {
+                            var buffer = md5.ComputeHash(zippedFile.Open());
+                            var hash = BitConverter.ToString(buffer).Replace("-", "").ToLowerInvariant();
+                            zipHashes.Add(hash);
+                        }
+                    }
 
-            DeleteFile(archive);
+                    // If hashes don't match
+                    if (fileHashes.Except(zipHashes).Any())
+                        throw new InvalidDataException();
+
+                    zip.ExtractToDirectory(savePath, true);
+                }
+                DeleteFile(archive);
+            }
+            catch (InvalidDataException ex)
+            {
+                Debug.WriteLine(ex);
+            }
         }
-        
-        public static string CalculateMD5(string filename)
+
+        public static string CalculateMD5(string filePath)
         {
             using var md5 = MD5.Create();
-            using var stream = File.OpenRead(filename);
+            using var stream = File.OpenRead(filePath);
             var hash = md5.ComputeHash(stream);
             return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
         }

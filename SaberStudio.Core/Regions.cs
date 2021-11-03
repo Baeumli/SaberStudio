@@ -1,9 +1,0 @@
-﻿namespace SaberStudio.Core
-{
-    public static class Regions
-    {
-        public const string ContentRegion = "ContentRegion";
-        public const string TopRegion = "TopRegion";
-        public const string LeftRegion = "LeftRegion";
-    }
-}

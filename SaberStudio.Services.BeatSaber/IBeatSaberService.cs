@@ -5,9 +5,13 @@ namespace SaberStudio.Services.BeatSaber
 {
     public interface IBeatSaberService
     {
-        string GetBaseDirectory();
-        string GetCustomLevelsDirectory();
-        IEnumerable<BeatMap> GetInstalledBeatMaps();
-        void DeleteBeatMap(BeatMap beatMap);
+        public string GetBaseDirectory();
+        public string GetCustomLevelsDirectory();
+        public string GetPluginsDirectory();
+        public IEnumerable<BeatMap> GetInstalledBeatMaps();
+        public void DeleteBeatMap(BeatMap beatMap);
+        public IEnumerable<Playlist> GetPlaylists();
+        public string GetGameVersion();
+
     }
 }

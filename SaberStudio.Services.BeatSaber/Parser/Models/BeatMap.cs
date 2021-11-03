@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 
 namespace SaberStudio.Services.BeatSaber.Parser.Models
@@ -46,6 +47,8 @@ namespace SaberStudio.Services.BeatSaber.Parser.Models
         [JsonProperty("_coverImageFilename")]
         public string CoverImageFileName { get; set; }
 
+        public Uri ImageUri { get; set; }
+
         [JsonProperty("_environmentName")]
         public string EnvironmentName { get; set; }
 
@@ -60,13 +63,25 @@ namespace SaberStudio.Services.BeatSaber.Parser.Models
     public class CustomData
     {
         [JsonProperty("_contributors")]
-        public IEnumerable<string> Contributors { get; set; }
+        public IEnumerable<Contributor> Contributors { get; set; }
 
         [JsonProperty("_customEnvironment")]
         public string CustomEnvironment { get; set; }
 
         [JsonProperty("_customEnvironmentHash")]
         public string CustomEnvironmentHash { get; set; }
+    }
+
+    public class Contributor
+    {
+        [JsonProperty("_role")]
+        public string Role { get; set; }
+
+        [JsonProperty("_name")]
+        public string Name { get; set; }
+
+        [JsonProperty("_iconPath")]
+        public string IconPath { get; set; }
     }
 
 }

@@ -31,23 +31,26 @@ namespace SaberStudio.Modules.Browser.Views
         private void ListView_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
             if (e.Handled) return;
+            
             e.Handled = true;
             var eventArg = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta)
             {
                 RoutedEvent = MouseWheelEvent,
                 Source = sender
             };
-            var parent = ((Control)sender).Parent as UIElement;
+            var parent = ((Control) sender).Parent as UIElement;
             parent.RaiseEvent(eventArg);
         }
 
-        private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void HandleDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var viewModel = DataContext as ModBrowserViewModel;
-            if (e.AddedItems.Count > 0)
+            if (e.ChangedButton == MouseButton.Left)
             {
-                viewModel.SelectedCommand.Execute(e.AddedItems[0] as Mod);
+                var viewModel = DataContext as ModBrowserViewModel;
+                viewModel?.SelectedCommand.Execute();
             }
+            e.Handled = true;
         }
     }
+
 }

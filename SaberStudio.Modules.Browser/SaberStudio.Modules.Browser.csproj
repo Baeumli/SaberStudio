@@ -5,16 +5,20 @@
     <AssemblyName>SaberStudio.Modules.Browser</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="AdonisUI" Version="1.17.0" />
+    <PackageReference Include="AdonisUI.ClassicTheme" Version="1.17.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.9" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.9" />
-    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.19" />
     <PackageReference Include="Prism.Unity" Version="8.0.0.1909" />
     <PackageReference Include="Prism.Wpf" Version="8.0.0.1909" />
     <PackageReference Include="Unity.Microsoft.DependencyInjection" Version="5.11.5" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SaberStudio.Core.Resources\SaberStudio.Core.Resources.csproj" />
     <ProjectReference Include="..\SaberStudio.Core\SaberStudio.Core.csproj" />
     <ProjectReference Include="..\SaberStudio.Services.BeatMods\SaberStudio.Services.BeatMods.csproj" />
     <ProjectReference Include="..\SaberStudio.Services.BeatSaver\SaberStudio.Services.BeatSaver.csproj" />
+    <ProjectReference Include="..\SaberStudio.Services.Bsipa\SaberStudio.Services.Bsipa.csproj" />
+    <ProjectReference Include="..\SaberStudio.UI\SaberStudio.UI.csproj" />
   </ItemGroup>
 </Project>

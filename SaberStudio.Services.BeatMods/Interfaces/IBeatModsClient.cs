@@ -3,7 +3,6 @@ using SaberStudio.Services.BeatMods.Models.Parser;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using static SaberStudio.Services.BeatMods.Models.Constants;
 
 namespace SaberStudio.Services.BeatMods.Interfaces
 {
@@ -11,5 +10,15 @@ namespace SaberStudio.Services.BeatMods.Interfaces
     {
 
         public Task<IEnumerable<Mod>> GetMods(CancellationToken cancellationToken, string gameVersion, string search, string sort, SortOrder sortOrder, string status);
+        public Task DownloadMod(CancellationToken cancellationToken, Mod mod);
+        public Task CheckInstalledMods(string gameVersion);
+        public Task<Mod> GetMod(CancellationToken cancellationToken, string gameVersion, string search, string status);
+        public bool IsModInstalled(Mod mod);
+        public Task InstallModLoader(string version);
+        public Task<Dictionary<string, IEnumerable<string>>> GetGameVersionAliases(CancellationToken cancellationToken);
+        public Task<IEnumerable<string>> GetGameVersions(CancellationToken cancellationToken);
+        public Task<string> GetGameVersionFromAlias(string versionAlias, CancellationToken cancellationToken);
+
+
     }
 }

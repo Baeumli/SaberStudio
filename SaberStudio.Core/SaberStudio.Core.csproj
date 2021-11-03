@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -7,10 +7,6 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Prism.Core" Version="8.0.0.1909" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\SaberStudio.Domain.Models\SaberStudio.Domain.Models.csproj" />
   </ItemGroup>
 
   <ItemGroup>

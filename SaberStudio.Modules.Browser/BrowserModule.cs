@@ -2,8 +2,6 @@
 using Prism.Ioc;
 using Prism.Modularity;
 using Prism.Regions;
-using SaberStudio.Core;
-using SaberStudio.Domain.Models.Sidebar;
 using System.Collections.Generic;
 using SaberStudio.Services.BeatSaver;
 using SaberStudio.Modules.Browser.ViewModels;
@@ -14,6 +12,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Unity.Microsoft.DependencyInjection;
 using SaberStudio.Services.BeatMods.Interfaces;
 using SaberStudio.Services.BeatMods;
+using SaberStudio.Services.Settings.Interfaces;
+using SaberStudio.UI;
+using SaberStudio.UI.Interfaces;
+using SaberStudio.UI.Models;
+using Localization = SaberStudio.Core.Resources.Localization;
+using SaberStudio.Services.Settings.Models;
+using SaberStudio.UI.Dialogs;
+using SaberStudio.UI.Dialogs.ViewModels;
+using SaberStudio.UI.Dialogs.Views;
 
 namespace SaberStudio.Modules.Browser
 {
@@ -30,16 +37,16 @@ namespace SaberStudio.Modules.Browser
 
         public void OnInitialized(IContainerProvider containerProvider)
         {
-            var group = new SidebarGroup
+            RegisterSettings(containerProvider.Resolve<ISettingsStore>());
+
+            var menu = new List<MenuItem>()
             {
-                Title = "Browse",
-                Items = new List<SidebarItem>()
-                {
-                    new SidebarItem() { Title = "Maps", TargetView = nameof(MapBrowserView) },
-                    new SidebarItem() { Title = "Mods", TargetView = nameof(ModBrowserView) },
-                }
+                new MenuItem() {Group = AppNavigationGroup.Browse, Name = "Maps", Target = nameof(MapBrowserView), Icon = Icon.Cog },
+                new MenuItem() {Group = AppNavigationGroup.Browse, Name = "Mods", Target = nameof(ModBrowserView), Icon = Icon.Cog }
             };
-            sidebarManager.Add(group);
+
+            sidebarManager.AddRange(menu);
+
         }
 
         public void RegisterTypes(IContainerRegistry containerRegistry)
@@ -59,10 +66,19 @@ namespace SaberStudio.Modules.Browser
             containerRegistry.RegisterForNavigation<ModBrowserView, ModBrowserViewModel>();
             containerRegistry.RegisterForNavigation<ModDetailView, ModDetailViewModel>();
             containerRegistry.RegisterForNavigation<MapBrowserView, MapBrowserViewModel>();
-            containerRegistry.RegisterForNavigation<MapCategoryView, MapCategoryViewModel>();
             containerRegistry.RegisterForNavigation<MapDetailView, MapDetailViewModel>();
             containerRegistry.RegisterForNavigation<ViewA, ViewAViewModel>();
+
+            containerRegistry.RegisterDialogWindow<AdonisDialogWindow>();
+            containerRegistry.RegisterDialog<VersionMismatchDialog, VersionMismatchDialogViewModel>();
+
             regionManager.RequestNavigate(Regions.ContentRegion, nameof(ViewA));
+        }
+
+        public void RegisterSettings(ISettingsStore settingsStore)
+        {
+            settingsStore.RegisterSetting("beatsaber.installdir", Localization.Settings_BeatSaberDirectory, Localization.Settings_BeatSaberDirectoryDescription, DataType.Path);
+            settingsStore.RegisterSetting("test.boolvalue", "Test bool value", "bool description", DataType.Bool, true);
         }
     }
 }

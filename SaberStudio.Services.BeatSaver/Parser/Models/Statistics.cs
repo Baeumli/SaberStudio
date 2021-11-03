@@ -21,5 +21,7 @@ namespace SaberStudio.Services.BeatSaver.Parser.Models
 
         [JsonProperty("upVotes")]
         public int Upvotes { get; set; }
+
+        public int Karma => Upvotes - Downvotes;
     }
 }

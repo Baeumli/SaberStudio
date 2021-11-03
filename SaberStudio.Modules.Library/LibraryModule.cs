@@ -3,10 +3,11 @@ using Prism.Ioc;
 using Prism.Modularity;
 using SaberStudio.Services.BeatSaber;
 using SaberStudio.Modules.Library.ViewModels;
-using SaberStudio.Core;
-using SaberStudio.Domain.Models.Sidebar;
 using System.Collections.Generic;
+using System.Linq;
 using SaberStudio.Services.Steam;
+using SaberStudio.UI.Interfaces;
+using SaberStudio.UI.Models;
 
 namespace SaberStudio.Modules.Library
 {
@@ -21,17 +22,24 @@ namespace SaberStudio.Modules.Library
 
         public void OnInitialized(IContainerProvider containerProvider)
         {
-            var group = new SidebarGroup
+            var menu = new List<MenuItem>
             {
-                Title = "Library",
-                Items = new List<SidebarItem>()
-                {
-                    new SidebarItem() { Title = "Maps", TargetView = nameof(MapLibraryView) },
-                    new SidebarItem() { Title = "Mods" },
-                    new SidebarItem() { Title = "Favorites" }
-                }
+                new MenuItem() { Group = AppNavigationGroup.Library, Name = "Maps", Target = nameof(MapLibraryView), Icon = Icon.Cog },
+                new MenuItem() { Group = AppNavigationGroup.Library, Name = "Mods", Target = "", Icon = Icon.Cog},
+                new MenuItem() { Group = AppNavigationGroup.Library, Name = "Favorites", Target = "", Icon = Icon.Cog },
             };
-            sidebarManager.Add(group);
+
+            var beatSaberService = containerProvider.Resolve<IBeatSaberService>();
+
+            var sidebarGroup = beatSaberService.GetPlaylists()
+                .Select(playlist => new MenuItem()
+                { Group = AppNavigationGroup.Playlists, Name = playlist.PlaylistTitle, Target = "" })
+                .ToList();
+
+            menu.AddRange(sidebarGroup);
+
+
+            sidebarManager.AddRange(menu);
         }
 
         public void RegisterTypes(IContainerRegistry containerRegistry)

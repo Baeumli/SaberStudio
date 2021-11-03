@@ -1,58 +1,108 @@
-﻿using Prism.Commands;
+﻿using System.Collections.Generic;
+using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Regions;
-using SaberStudio.Core;
 using SaberStudio.Core.Extensions;
 using SaberStudio.Modules.Browser.Views;
 using SaberStudio.Services.BeatMods.Interfaces;
 using SaberStudio.Services.BeatMods.Models;
 using SaberStudio.Services.BeatMods.Models.Parser;
-using System;
+using SaberStudio.Services.BeatSaber;
+using SaberStudio.UI;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
-using static SaberStudio.Services.BeatMods.Models.Constants;
+using System.Threading.Tasks;
+using Prism.Services.Dialogs;
+using SaberStudio.UI.Dialogs.Views;
 
 namespace SaberStudio.Modules.Browser.ViewModels
 {
     public class ModBrowserViewModel : BindableBase, INavigationAware
     {
         private readonly IBeatModsClient beatModsClient;
+        private readonly IBeatSaberService beatSaberService;
         private readonly IRegionManager regionManager;
+        private readonly IDialogService dialogService;
 
+        #region Properties 
 
-        private ObservableCollection<Mod> mods;
-        public ObservableCollection<Mod> Mods
+        public ObservableCollection<Mod> Mods { get; set; } = new ObservableCollection<Mod>();
+
+        private Mod selectedMod;
+        public Mod SelectedMod
         {
-            get => mods;
-            set => SetProperty(ref mods, value);
+            get => selectedMod;
+            set => SetProperty(ref selectedMod, value);
         }
 
-        private DelegateCommand<Mod> selectedCommand;
-        public DelegateCommand<Mod> SelectedCommand => selectedCommand ??= new DelegateCommand<Mod>(ExecuteSelectedCommand);
+        private string gameVersion;
+        public string GameVersion       
+        {
+            get => gameVersion;
+            set => SetProperty(ref gameVersion, value);
+        }
 
-        private void ExecuteSelectedCommand(Mod mod)
+        #endregion
+
+        public ModBrowserViewModel(IRegionManager regionManager, IDialogService dialogService, IBeatModsClient beatModsClient, IBeatSaberService beatSaberService)
+        {
+            this.regionManager = regionManager;
+            this.dialogService = dialogService;
+            this.beatModsClient = beatModsClient;
+            this.beatSaberService = beatSaberService;
+        }
+
+        #region Commands 
+
+        private DelegateCommand selectedCommand;
+        public DelegateCommand SelectedCommand => selectedCommand ??= new DelegateCommand(ExecuteSelectedCommand);
+        private void ExecuteSelectedCommand()
         {
             var navParams = new NavigationParameters
-                {
-                    { "Mod",  mod }
-                };
+            {
+                { "Mod",  SelectedMod }
+            };
 
             regionManager.RequestNavigate(Regions.ContentRegion, nameof(ModDetailView), navParams);
         }
 
-        private int currentPage = 1;
-        public int CurrentPage
+        private DelegateCommand downloadCommand;
+        public DelegateCommand DownloadCommand => downloadCommand ??= new DelegateCommand(ExecuteDownloadCommand);
+
+        private async void ExecuteDownloadCommand()
         {
-            get => currentPage;
-            set => SetProperty(ref currentPage, value);
+            var currentGameVersion = beatSaberService.GetGameVersion();
+            if (currentGameVersion != SelectedMod.GameVersion)
+            {
+                if (!ShowDialog())
+                    return;
+            }
+
+            await beatModsClient.DownloadMod(CancellationToken.None, SelectedMod);
         }
 
-        public ModBrowserViewModel(IBeatModsClient beatModsClient, IRegionManager regionManager)
+        #endregion
+        
+        private async Task<IEnumerable<Mod>> GetMods()
         {
-            this.beatModsClient = beatModsClient;
-            this.regionManager = regionManager;
-            Mods = new ObservableCollection<Mod>();
+            return await beatModsClient.GetMods(CancellationToken.None, GameVersion, "", "", SortOrder.Descending, Constants.Status.Approved);
         }
+
+        private async void InstallModLoader()
+        {
+            await beatModsClient.InstallModLoader(GameVersion);
+        }
+
+        private async Task<string> GetGameVersion()
+        {
+            var version = beatSaberService.GetGameVersion();
+            var alias = await beatModsClient.GetGameVersionFromAlias(version, CancellationToken.None);
+            return string.IsNullOrEmpty(alias) ? version : alias;
+        }
+        
+
+        #region Navigation 
 
         public bool IsNavigationTarget(NavigationContext navigationContext)
         {
@@ -63,16 +113,41 @@ namespace SaberStudio.Modules.Browser.ViewModels
         {
         }
 
-        private async void GetMods()
+        public async void OnNavigatedTo(NavigationContext navigationContext)
         {
-            var mods = await beatModsClient.GetMods(CancellationToken.None, GameVersion.V1_12_2, "", "", SortOrder.Descending, Status.Approved);
+                        
+            GameVersion = await GetGameVersion();
+            await beatModsClient.CheckInstalledMods(GameVersion);
+
+            InstallModLoader();
+            
+            var mods = await GetMods();
             Mods.Clear();
-            Mods.AddRange(mods.ToObservableCollection());
+            Mods.AddRange(mods.Where((x => x.IsRequired == false)));
         }
 
-        public void OnNavigatedTo(NavigationContext navigationContext)
+        private bool ShowDialog()
         {
-            GetMods();
+            var resume = false;
+
+            dialogService.ShowDialog(nameof(VersionMismatchDialog), result =>
+            {
+                switch (result.Result)
+                {
+                    case ButtonResult.Yes:
+                        resume = true;
+                        break;
+                    case ButtonResult.No:
+                        resume = false;
+                        break;
+                    default:
+                        return;
+                }
+            });
+            return resume;
         }
+
+        #endregion
+
     }
 }

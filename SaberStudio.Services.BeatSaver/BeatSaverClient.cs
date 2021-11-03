@@ -1,19 +1,18 @@
-﻿using SaberStudio.Core.Extensions;
+﻿using Prism.Events;
+using SaberStudio.Core.Events;
+using SaberStudio.Core.Extensions;
+using SaberStudio.Core.Util;
+using SaberStudio.Services.BeatSaber;
+using SaberStudio.Services.BeatSaber.Utils;
 using SaberStudio.Services.BeatSaver.Interfaces;
+using SaberStudio.Services.BeatSaver.Parser.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-using Prism.Events;
-using SaberStudio.Core.Events;
-using SaberStudio.Core.Util;
-using SaberStudio.Services.BeatSaber;
-using SaberStudio.Services.BeatSaber.Utils;
-using SaberStudio.Services.BeatSaver.Parser.Models;
 
 namespace SaberStudio.Services.BeatSaver
 {
@@ -50,11 +49,11 @@ namespace SaberStudio.Services.BeatSaver
             await using var stream = await response.Content.ReadAsStreamAsync();
             await FileHelper.CreateFileFromStream(stream, zipFile, true);
 
-            FileHelper.ExtractZip(zipFile, savePath);
-            eventAggregator.GetEvent<MapLibraryChangedEvent>().Publish();
+            //FileHelper.ExtractZip(zipFile, savePath);
+            //eventAggregator.GetEvent<MapLibraryChangedEvent>().Publish();
         }
 
-        public async Task<IEnumerable<Parser.Models.BeatMap>> GetByHash(CancellationToken cancellationToken, string hash)
+        public async Task<IEnumerable<BeatMap>> GetByHash(CancellationToken cancellationToken, string hash)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, "maps/by-hash/" + hash);
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -67,12 +66,12 @@ namespace SaberStudio.Services.BeatSaver
             return docs.BeatMaps;
         }
 
-        public Task<IEnumerable<Parser.Models.BeatMap>> GetByMapKey(CancellationToken cancellationToken, string mapKey)
+        public Task<IEnumerable<BeatMap>> GetByMapKey(CancellationToken cancellationToken, string mapKey)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<Parser.Models.BeatMap>> GetByMapName(CancellationToken cancellationToken, string searchQuery, int pageNumber = 0)
+        public async Task<IEnumerable<BeatMap>> GetByFuzzySearch(CancellationToken cancellationToken, string searchQuery, int pageNumber = 0)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, "search/text/" + pageNumber + "?q=" + searchQuery);
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -80,17 +79,17 @@ namespace SaberStudio.Services.BeatSaver
             using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
             response.EnsureSuccessStatusCode();
             var stream = await response.Content.ReadAsStreamAsync();
-            var docs = stream.DeserializeJsonFromStream<Parser.Models.Docs>();
+            var docs = stream.DeserializeJsonFromStream<Docs>();
 
             return docs.BeatMaps;
         }
         
-        public Task<IEnumerable<Parser.Models.BeatMap>> GetByUploaderId(CancellationToken cancellationToken, string uploaderId, int pageNumber = 0)
+        public Task<IEnumerable<BeatMap>> GetByUploaderId(CancellationToken cancellationToken, string uploaderId, int pageNumber = 0)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<Parser.Models.BeatMap>> GetLatestMaps(CancellationToken cancellationToken, int pageNumber = 0)
+        public async Task<IEnumerable<BeatMap>> GetLatestMaps(CancellationToken cancellationToken, int pageNumber = 0)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, "maps/latest/" + pageNumber);
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -98,12 +97,12 @@ namespace SaberStudio.Services.BeatSaver
             using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
             response.EnsureSuccessStatusCode();
             var stream = await response.Content.ReadAsStreamAsync();
-            var docs = stream.DeserializeJsonFromStream<Parser.Models.Docs>();
+            var docs = stream.DeserializeJsonFromStream<Docs>();
 
             return docs.BeatMaps;
         }
 
-        public async Task<IEnumerable<Parser.Models.BeatMap>> GetMostDownloadedMaps(CancellationToken cancellationToken, int pageNumber = 0)
+        public async Task<IEnumerable<BeatMap>> GetMostDownloadedMaps(CancellationToken cancellationToken, int pageNumber = 0)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, "maps/downloads/" + pageNumber);
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -111,12 +110,12 @@ namespace SaberStudio.Services.BeatSaver
             using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
             response.EnsureSuccessStatusCode();
             var stream = await response.Content.ReadAsStreamAsync();
-            var docs = stream.DeserializeJsonFromStream<Parser.Models.Docs>();
+            var docs = stream.DeserializeJsonFromStream<Docs>();
 
             return docs.BeatMaps;
         }
 
-        public async Task<IEnumerable<Parser.Models.BeatMap>> GetMostPlayedMaps(CancellationToken cancellationToken, int pageNumber = 0)
+        public async Task<IEnumerable<BeatMap>> GetMostPlayedMaps(CancellationToken cancellationToken, int pageNumber = 0)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, "maps/plays/" + pageNumber);
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -124,12 +123,12 @@ namespace SaberStudio.Services.BeatSaver
             using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
             response.EnsureSuccessStatusCode();
             var stream = await response.Content.ReadAsStreamAsync();
-            var docs = stream.DeserializeJsonFromStream<Parser.Models.Docs>();
+            var docs = stream.DeserializeJsonFromStream<Docs>();
 
             return docs.BeatMaps;
         }
 
-        public async Task<IEnumerable<Parser.Models.BeatMap>> GetTopRatedMaps(CancellationToken cancellationToken, int pageNumber = 0)
+        public async Task<IEnumerable<BeatMap>> GetTopRatedMaps(CancellationToken cancellationToken, int pageNumber = 0)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, "maps/rating/" + pageNumber);
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -137,12 +136,12 @@ namespace SaberStudio.Services.BeatSaver
             using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
             response.EnsureSuccessStatusCode();
             var stream = await response.Content.ReadAsStreamAsync();
-            var docs = stream.DeserializeJsonFromStream<Parser.Models.Docs>();
+            var docs = stream.DeserializeJsonFromStream<Docs>();
 
             return docs.BeatMaps;
         }
 
-        public async Task<IEnumerable<Parser.Models.BeatMap>> GetTrendingMaps(CancellationToken cancellationToken, int pageNumber = 0)
+        public async Task<IEnumerable<BeatMap>> GetTrendingMaps(CancellationToken cancellationToken, int pageNumber = 0)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, "maps/hot/" + pageNumber);
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -150,7 +149,7 @@ namespace SaberStudio.Services.BeatSaver
             using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
             response.EnsureSuccessStatusCode();
             var stream = await response.Content.ReadAsStreamAsync();
-            var docs = stream.DeserializeJsonFromStream<Parser.Models.Docs>();
+            var docs = stream.DeserializeJsonFromStream<Docs>();
 
             return docs.BeatMaps;
         }

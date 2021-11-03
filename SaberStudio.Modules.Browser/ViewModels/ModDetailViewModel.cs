@@ -29,7 +29,6 @@ namespace SaberStudio.Modules.Browser.ViewModels
         public void OnNavigatedTo(NavigationContext navigationContext)
         {
             Mod = navigationContext.Parameters[nameof(Mod)] as Mod;
-
         }
     }
 }

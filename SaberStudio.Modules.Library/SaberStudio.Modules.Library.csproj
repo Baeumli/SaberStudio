@@ -5,10 +5,14 @@
     <AssemblyName>SaberStudio.Modules.Library</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Prism.Wpf" Version="7.2.0.1422" />
+    <PackageReference Include="AdonisUI" Version="1.17.0" />
+    <PackageReference Include="AdonisUI.ClassicTheme" Version="1.17.0" />
+    <PackageReference Include="Prism.Wpf" Version="8.0.0.1909" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SaberStudio.Modules.Browser\SaberStudio.Modules.Browser.csproj" />
     <ProjectReference Include="..\SaberStudio.Services.BeatSaber\SaberStudio.Services.BeatSaber.csproj" />
     <ProjectReference Include="..\SaberStudio.Services.BeatSaver\SaberStudio.Services.BeatSaver.csproj" />
+    <ProjectReference Include="..\SaberStudio.UI\SaberStudio.UI.csproj" />
   </ItemGroup>
 </Project>

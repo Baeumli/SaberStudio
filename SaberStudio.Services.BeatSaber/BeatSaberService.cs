@@ -1,24 +1,26 @@
 ﻿using Newtonsoft.Json;
+using SaberStudio.Core.Util;
 using SaberStudio.Services.BeatSaber.Parser.Models;
+using SaberStudio.Services.Settings.Interfaces;
 using SaberStudio.Services.Steam;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Prism.Events;
-using SaberStudio.Core.Events;
-using SaberStudio.Core.Util;
-using SaberStudio.Services.BeatSaber.Utils;
+using System.Text;
+using System.Threading;
 
 namespace SaberStudio.Services.BeatSaber
 {
     public class BeatSaberService : IBeatSaberService
     {
         private readonly ISteamService steamService;
+        private readonly ISettingsStore settingsStore;
 
-        public BeatSaberService(ISteamService steamService)
+        public BeatSaberService(ISteamService steamService, ISettingsStore settingsStore)
         {
             this.steamService = steamService;
+            this.settingsStore = settingsStore;
         }
 
         public IEnumerable<BeatMap> GetInstalledBeatMaps()
@@ -30,8 +32,9 @@ namespace SaberStudio.Services.BeatSaber
             {
                 var json = File.ReadAllText(mapPath);
                 var map = JsonConvert.DeserializeObject<BeatMap>(json);
-                map.FolderLocation = Path.GetDirectoryName(mapPath);
+                map.FolderLocation = Path.GetDirectoryName(mapPath) ?? "";
                 map.CoverImageFileName = Path.Combine(map.FolderLocation, map.CoverImageFileName);
+                map.ImageUri = new Uri(map.CoverImageFileName);
                 yield return map;
             }
         }
@@ -46,43 +49,116 @@ namespace SaberStudio.Services.BeatSaber
         {
             var folder = GetPlaylistFolder();
 
-            var playlists = Directory.EnumerateFiles(Path.GetDirectoryName(folder), "*.*")
-                .Where(s => s.EndsWith(".json", StringComparison.OrdinalIgnoreCase) || s.EndsWith(".bplist", StringComparison.OrdinalIgnoreCase));
+            var playlists = Directory.EnumerateFiles(folder, "*.*").Where(s => s.EndsWith(".json", StringComparison.OrdinalIgnoreCase) 
+                                                                               || s.EndsWith(".bplist", StringComparison.OrdinalIgnoreCase));
 
             foreach (var playlist in playlists)
             {
-                yield return JsonConvert.DeserializeObject<Playlist>(playlist);
+                var json = File.ReadAllText(playlist);
+                yield return JsonConvert.DeserializeObject<Playlist>(json);
             }
         }
 
         public string GetPlaylistFolder()
         {
-            return Path.Combine(GetBaseDirectory(), "Playlists");
+            var playlistFolder = Path.Combine(GetBaseDirectory(), "Playlists");
+
+            Directory.CreateDirectory(playlistFolder);
+
+            return playlistFolder;
         }
+
+        public string GetGameVersion()
+        {
+            var gameManager = Path.Combine(GetBaseDirectory(), "Beat Saber_Data", "globalgamemanagers");
+            using (var stream = File.OpenRead(gameManager))
+            using (var reader = new BinaryReader(stream, Encoding.UTF8))
+            {
+                const string key = "public.app-category.games";
+                var position = 0;
+
+                while (stream.Position < stream.Length && position < key.Length)
+                {
+                    if (reader.ReadByte() == key[position])
+                    {
+                        position++;
+                    }
+                    else
+                    {
+                        position = 0;
+                    }
+                }
+
+                if (stream.Position == stream.Length)
+                    return null;
+
+                while (stream.Position < stream.Length)
+                {
+                    var current = (char)reader.ReadByte();
+                    if (char.IsDigit(current))
+                        break;
+                }
+
+                var rewind = -sizeof(int) - sizeof(byte);
+                stream.Seek(rewind, SeekOrigin.Current); // rewind to the string length
+
+                var strlen = reader.ReadInt32();
+                var strbytes = reader.ReadBytes(strlen);
+
+                return Encoding.UTF8.GetString(strbytes);
+            }
+        }
+
 
         public string GetBaseDirectory()
         {
-            var baseLocation = steamService.GetBaseDirectory();
-            var steamAppsDirectory = Path.Combine(baseLocation, "steamapps");
+            var value = settingsStore.GetValueByKey("beatsaber.installdir") as string;
 
-            if (File.Exists(Path.Combine(steamAppsDirectory, "appmanifest_620980.acf")))
-                return Path.Combine(steamAppsDirectory, "common", "Beat Saber");
+            if (!string.IsNullOrEmpty(value)) 
+                return value;
+            
+            var steamFolder = steamService.GetBaseDirectory();
+            var steamAppsFolder = Path.Combine(steamFolder, "steamapps");
+            var beatSaberManifest = Path.Combine(steamAppsFolder, "appmanifest_620980.acf");
+            var beatSaberFolder = Path.Combine(steamAppsFolder, "common", "Beat Saber");
 
-            var locations = steamService.GetLibraryLocations(steamAppsDirectory);
-
-            foreach (var location in locations)
+            if (File.Exists(beatSaberManifest))
             {
-                if (File.Exists(Path.Combine(location.Value, "steamapps", "appmanifest_620980.acf")))
-                    return Path.Combine(location.Value, "steamapps", "common", "Beat Saber");
+                settingsStore.UpdateValue("beatsaber.installdir", beatSaberFolder);
+                return beatSaberFolder;
             }
-            throw new DirectoryNotFoundException("Could not find Beat Saber directory");
+            
+            var steamLibraryLocations = steamService.GetLibraryLocations(steamAppsFolder);
+
+            foreach (var (key, location) in steamLibraryLocations)
+            {
+                beatSaberManifest = Path.Combine(location, "steamapps", "appmanifest_620980.acf");
+                if (File.Exists(beatSaberManifest))
+                    beatSaberFolder = Path.Combine(location, "steamapps", "common", "Beat Saber");
+            }
+
+            if (string.IsNullOrEmpty(beatSaberFolder))
+                throw new DirectoryNotFoundException("Could not find Beat Saber. Please make sure Beat Saber is installed.");
+
+            settingsStore.UpdateValue("beatsaber.installdir", beatSaberFolder);
+
+            return beatSaberFolder;
         }
 
         public string GetCustomLevelsDirectory()
         {
-            return Path.Combine(GetBaseDirectory(), @"Beat Saber_Data\CustomLevels");
+            var customLevelsFolder = Path.Combine(GetBaseDirectory(), @"Beat Saber_Data\CustomLevels");
+
+            if (!Directory.Exists(customLevelsFolder))
+                throw new DirectoryNotFoundException();
+
+            return customLevelsFolder;
         }
-        
-        
+
+        public string GetPluginsDirectory()
+        {
+            var gameDirectory = GetBaseDirectory();
+            return Path.Combine(gameDirectory, @"Beat Saber_Data\CustomLevels");
+        }
     }
 }

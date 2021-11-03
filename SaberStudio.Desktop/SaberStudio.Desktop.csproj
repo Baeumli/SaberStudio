@@ -6,16 +6,26 @@
     <AssemblyName>SaberStudio.Desktop</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="AdonisUI" Version="1.17.0" />
+    <PackageReference Include="AdonisUI.ClassicTheme" Version="1.17.0" />
+    <PackageReference Include="AutoMapper" Version="10.1.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.9" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.9" />
-    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.19" />
+    <PackageReference Include="Ookii.Dialogs.Wpf" Version="3.1.0" />
     <PackageReference Include="Prism.Unity" Version="8.0.0.1909" />
     <PackageReference Include="Unity.Microsoft.DependencyInjection" Version="5.11.5" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SaberStudio.Core.Resources\SaberStudio.Core.Resources.csproj" />
     <ProjectReference Include="..\SaberStudio.Modules.Browser\SaberStudio.Modules.Browser.csproj" />
     <ProjectReference Include="..\SaberStudio.Modules.Library\SaberStudio.Modules.Library.csproj" />
-    <ProjectReference Include="..\SaberStudio.Modules.Sidebar\SaberStudio.Modules.Sidebar.csproj" />
     <ProjectReference Include="..\SaberStudio.Services.BeatSaver\SaberStudio.Services.BeatSaver.csproj" />
+    <ProjectReference Include="..\SaberStudio.Services.Settings\SaberStudio.Services.Settings.csproj" />
+    <ProjectReference Include="..\SaberStudio.UI\SaberStudio.UI.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\NavbarView.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+    </Page>
   </ItemGroup>
 </Project>
