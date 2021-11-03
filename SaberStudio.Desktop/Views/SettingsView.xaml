@@ -1,0 +1,72 @@
+﻿<UserControl x:Class="SaberStudio.Desktop.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:resx="clr-namespace:SaberStudio.Core.Resources;assembly=SaberStudio.Core.Resources"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
+             xmlns:extensions="clr-namespace:SaberStudio.Desktop.Extensions"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             x:Name="Root"
+             Margin="20 0">
+    <UserControl.Resources>
+        <DataTemplate x:Key="StringDataTemplate">
+            <TextBlock Text="{Binding Value}"></TextBlock>
+        </DataTemplate>
+        <DataTemplate x:Key="BoolDataTemplate">
+            <CheckBox
+                IsChecked="{Binding Value}"
+                Style="{DynamicResource {x:Static adonisUi:Styles.ToggleSwitch}}"
+                Command="{Binding DataContext.UpdateSettingCommand, ElementName=Root}"
+                CommandParameter="{Binding}"
+                Margin="{adonisUi:Space 0, 0, 1, 0}">
+                <CheckBox.LayoutTransform>
+                    <ScaleTransform ScaleX="1.8" ScaleY="1.8" />
+                </CheckBox.LayoutTransform>
+            </CheckBox>
+        </DataTemplate>
+        <DataTemplate x:Key="PathDataTemplate">
+            <StackPanel Orientation="Horizontal">
+                <TextBox Text="{Binding Value}" IsEnabled="False" VerticalAlignment="Center" />
+                <Button 
+                    Content="{x:Static resx:Localization.BrowseFolder}"
+                    Command="{Binding DataContext.BrowseFolderCommand, ElementName=Root}"
+                    CommandParameter="{Binding}"/>
+            </StackPanel>
+        </DataTemplate>
+
+        <extensions:MyTemplateSelector x:Key="MyTemplateSelector"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Settings" FontSize="30" FontWeight="Bold" Margin="0 0 0 20" />
+
+        <ItemsControl ItemsSource="{Binding Settings}" Grid.Row="1">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Margin="0 0 0 20">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Grid.Row="0" Text="{Binding Name}" FontSize="20"></TextBlock>
+                            <TextBlock Grid.Column="0" Grid.Row="1" Text="{Binding Description}" FontSize="15" Margin="0 0 40 0"></TextBlock>
+                            <ContentControl Grid.Column="1" Grid.Row="1" Content="{Binding}" ContentTemplateSelector="{DynamicResource MyTemplateSelector}"/>
+                        </Grid>
+
+
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
+</UserControl>

@@ -1,0 +1,42 @@
+﻿<UserControl x:Class="SaberStudio.Desktop.Views.NavbarView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:SaberStudio.Desktop.Views"
+    xmlns:prism="http://prismlibrary.com/"
+    xmlns:converters="clr-namespace:SaberStudio.UI.Converters;assembly=SaberStudio.UI"
+    xmlns:ui="clr-namespace:SaberStudio.UI.Models;assembly=SaberStudio.UI"
+    prism:ViewModelLocator.AutoWireViewModel="True">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <converters:StringToHtmlConverter x:Key="StringToHtmlConverter"/>
+        </ResourceDictionary>
+    </UserControl.Resources>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Orientation="Horizontal" Grid.Column="0">
+                <Button Style="{StaticResource IconButton}" FontSize="40"
+                        Command="{Binding NavigateBackCommand}"
+                        Content="{Binding Source={x:Static ui:Icon.Back}, Converter={StaticResource StringToHtmlConverter}}" />
+            <Button Style="{StaticResource IconButton}" FontSize="40"
+                        Command="{Binding NavigateForwardCommand}"
+                        Content="{Binding Source={x:Static ui:Icon.Next}, Converter={StaticResource StringToHtmlConverter}}" />
+            </StackPanel>
+        <TextBlock Grid.Column="2" VerticalAlignment="Center" FontSize="16">
+                <TextBlock.Text>
+                    <MultiBinding StringFormat="Game Version: {0}">
+                        <Binding Path="GameVersion"/>
+                    </MultiBinding>
+                </TextBlock.Text>
+            </TextBlock>
+        <Button Style="{StaticResource IconButton}"
+                    Command="{Binding GoToSettingsCommand}"
+                    Content="{Binding Source={x:Static ui:Icon.Cog}, Converter={StaticResource StringToHtmlConverter}}" 
+                    HorizontalAlignment="Right" Grid.Column="3"/>
+        </Grid>
+</UserControl>
