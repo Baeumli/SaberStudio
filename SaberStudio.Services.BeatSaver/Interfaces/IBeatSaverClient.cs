@@ -1,30 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using SaberStudio.Services.BeatSaver.Parser.Models;
+using SaberStudio.Services.BeatSaver.Models;
 
 namespace SaberStudio.Services.BeatSaver.Interfaces
 {
     public interface IBeatSaverClient
     {
-        public Task<IEnumerable<BeatMap>> GetByHash(CancellationToken cancellationToken, string hash);
-        
-        public Task<IEnumerable<BeatMap>> GetByMapKey(CancellationToken cancellationToken, string mapKey);
-               
-        public Task<IEnumerable<BeatMap>> GetByFuzzySearch(CancellationToken cancellationToken, string searchQuery, int pageNumber = 0);
-        
-        public Task<IEnumerable<BeatMap>> GetByUploaderId(CancellationToken cancellationToken, string uploaderId, int pageNumber = 0);
-        
-        public Task DownloadMap(CancellationToken cancellationToken, BeatMap map);
-        
-        public Task<IEnumerable<BeatMap>> GetTrendingMaps(CancellationToken cancellationToken, int pageNumber = 0);
-        
-        public Task<IEnumerable<BeatMap>> GetLatestMaps(CancellationToken cancellationToken, int pageNumber = 0);
-        
-        public Task<IEnumerable<BeatMap>> GetMostPlayedMaps(CancellationToken cancellationToken, int pageNumber = 0);
-        
-        public Task<IEnumerable<BeatMap>> GetMostDownloadedMaps(CancellationToken cancellationToken, int pageNumber = 0);
-        
-        public Task<IEnumerable<BeatMap>> GetTopRatedMaps(CancellationToken cancellationToken, int pageNumber = 0);
+        public Task<MapDetail> GetMap(string id, CancellationToken cancellationToken);
+        public Task<MapDetail> GetMapsByHash(string hash, CancellationToken cancellationToken);
+        public Task<SearchResponse> GetMapsByUser(string userId, CancellationToken cancellationToken, int? pageNumber = 0);
+        public Task<SearchResponse> GetLatestMaps(string before, string after, bool automapper, string sort, CancellationToken cancellationToken);
+        public Task<SearchResponse> GetMostPlayedMaps(CancellationToken cancellationToken, int? pageNumber = 0);
     }
 }

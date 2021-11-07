@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 
 namespace SaberStudio.Services.BeatSaber
 {
@@ -59,7 +58,7 @@ namespace SaberStudio.Services.BeatSaber
             }
         }
 
-        public string GetPlaylistFolder()
+        private string GetPlaylistFolder()
         {
             var playlistFolder = Path.Combine(GetBaseDirectory(), "Playlists");
 
@@ -130,7 +129,7 @@ namespace SaberStudio.Services.BeatSaber
             
             var steamLibraryLocations = steamService.GetLibraryLocations(steamAppsFolder);
 
-            foreach (var (key, location) in steamLibraryLocations)
+            foreach (var (_, location) in steamLibraryLocations)
             {
                 beatSaberManifest = Path.Combine(location, "steamapps", "appmanifest_620980.acf");
                 if (File.Exists(beatSaberManifest))

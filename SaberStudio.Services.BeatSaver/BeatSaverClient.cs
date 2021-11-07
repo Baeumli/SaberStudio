@@ -1,14 +1,8 @@
-﻿using Prism.Events;
-using SaberStudio.Core.Events;
-using SaberStudio.Core.Extensions;
-using SaberStudio.Core.Util;
-using SaberStudio.Services.BeatSaber;
-using SaberStudio.Services.BeatSaber.Utils;
+﻿using SaberStudio.Core.Extensions;
 using SaberStudio.Services.BeatSaver.Interfaces;
-using SaberStudio.Services.BeatSaver.Parser.Models;
+using SaberStudio.Services.BeatSaver.Models;
 using System;
-using System.Collections.Generic;
-using System.IO;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
@@ -19,139 +13,109 @@ namespace SaberStudio.Services.BeatSaver
     public class BeatSaverClient : IBeatSaverClient
     {
         private readonly HttpClient client;
-        private readonly IBeatSaberService beatSaberService;
-        private readonly IEventAggregator eventAggregator;
-        public BeatSaverClient(HttpClient client, IBeatSaberService beatSaberService, IEventAggregator eventAggregator)
+        
+        
+        public BeatSaverClient(HttpClient client)
         {
-            this.eventAggregator = eventAggregator;
-            this.beatSaberService = beatSaberService;
             this.client = client;
-            client.BaseAddress = new Uri("https://beatsaver.com/api/");
+            client.BaseAddress = new Uri("https://api.beatsaver.com");
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.UserAgent.TryParseAdd("SaberStudio/0.1");
         }
-
-        public async Task DownloadMap(CancellationToken cancellationToken, BeatMap map)
-        {
-            var folderName = MapHelper.GetFormattedMapName(map.MapKey, map.Metadata.SongName, map.Metadata.SongAuthor);
-            var levelsDirectory = beatSaberService.GetCustomLevelsDirectory();
-            var savePath = Path.Combine(levelsDirectory, folderName);
-            
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/zip"));
-            var response = await client.GetAsync(map.DownloadUrl, cancellationToken);
-
-            var tempPath = Path.Combine(Path.GetTempPath(), "SaberStudio", folderName);
-            var zipFile = Path.Combine(tempPath, folderName + ".zip");
-            
-            FileHelper.CreateFolder(tempPath);
-
-            await using var stream = await response.Content.ReadAsStreamAsync();
-            await FileHelper.CreateFileFromStream(stream, zipFile, true);
-
-            //FileHelper.ExtractZip(zipFile, savePath);
-            //eventAggregator.GetEvent<MapLibraryChangedEvent>().Publish();
-        }
-
-        public async Task<IEnumerable<BeatMap>> GetByHash(CancellationToken cancellationToken, string hash)
-        {
-            var request = new HttpRequestMessage(HttpMethod.Get, "maps/by-hash/" + hash);
-            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-            using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-            response.EnsureSuccessStatusCode();
-            var stream = await response.Content.ReadAsStreamAsync();
-            var docs = stream.DeserializeJsonFromStream<Docs>();
-
-            return docs.BeatMaps;
-        }
-
-        public Task<IEnumerable<BeatMap>> GetByMapKey(CancellationToken cancellationToken, string mapKey)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<IEnumerable<BeatMap>> GetByFuzzySearch(CancellationToken cancellationToken, string searchQuery, int pageNumber = 0)
-        {
-            var request = new HttpRequestMessage(HttpMethod.Get, "search/text/" + pageNumber + "?q=" + searchQuery);
-            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-            using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-            response.EnsureSuccessStatusCode();
-            var stream = await response.Content.ReadAsStreamAsync();
-            var docs = stream.DeserializeJsonFromStream<Docs>();
-
-            return docs.BeatMaps;
-        }
         
-        public Task<IEnumerable<BeatMap>> GetByUploaderId(CancellationToken cancellationToken, string uploaderId, int pageNumber = 0)
+        public async Task<MapDetail> GetMap(string id, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, $"maps/id/{id}");
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                response.EnsureSuccessStatusCode();
+                var stream = await response.Content.ReadAsStreamAsync();
+                return stream.DeserializeJsonFromStream<MapDetail>();
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+                return null;
+            }
         }
 
-        public async Task<IEnumerable<BeatMap>> GetLatestMaps(CancellationToken cancellationToken, int pageNumber = 0)
+        public async Task<MapDetail> GetMapsByHash(string hash, CancellationToken cancellationToken)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, "maps/latest/" + pageNumber);
-            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            try
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, $"maps/hash/{hash}");
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-            response.EnsureSuccessStatusCode();
-            var stream = await response.Content.ReadAsStreamAsync();
-            var docs = stream.DeserializeJsonFromStream<Docs>();
-
-            return docs.BeatMaps;
+                using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                response.EnsureSuccessStatusCode();
+                var stream = await response.Content.ReadAsStreamAsync();
+                return stream.DeserializeJsonFromStream<MapDetail>();
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+                return null;
+            }
         }
 
-        public async Task<IEnumerable<BeatMap>> GetMostDownloadedMaps(CancellationToken cancellationToken, int pageNumber = 0)
+        public async Task<SearchResponse> GetMapsByUser(string userId, CancellationToken cancellationToken, int? pageNumber)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, "maps/downloads/" + pageNumber);
-            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            try
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, $"maps/hash/{userId}/{pageNumber}");
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-            response.EnsureSuccessStatusCode();
-            var stream = await response.Content.ReadAsStreamAsync();
-            var docs = stream.DeserializeJsonFromStream<Docs>();
-
-            return docs.BeatMaps;
+                using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                response.EnsureSuccessStatusCode();
+                var stream = await response.Content.ReadAsStreamAsync();
+                return stream.DeserializeJsonFromStream<SearchResponse>();
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+                return null;
+            }
         }
 
-        public async Task<IEnumerable<BeatMap>> GetMostPlayedMaps(CancellationToken cancellationToken, int pageNumber = 0)
+        public async Task<SearchResponse> GetLatestMaps(string before, string after, bool automapper, string sort, CancellationToken cancellationToken)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, "maps/plays/" + pageNumber);
-            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            try
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, $"maps/latest");
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-            response.EnsureSuccessStatusCode();
-            var stream = await response.Content.ReadAsStreamAsync();
-            var docs = stream.DeserializeJsonFromStream<Docs>();
-
-            return docs.BeatMaps;
+                using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                response.EnsureSuccessStatusCode();
+                var stream = await response.Content.ReadAsStreamAsync();
+                return stream.DeserializeJsonFromStream<SearchResponse>();
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+                return null;
+            }
         }
 
-        public async Task<IEnumerable<BeatMap>> GetTopRatedMaps(CancellationToken cancellationToken, int pageNumber = 0)
+        public async Task<SearchResponse> GetMostPlayedMaps(CancellationToken cancellationToken, int? pageNumber)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, "maps/rating/" + pageNumber);
-            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            try
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, $"maps/plays/{pageNumber}");
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-            response.EnsureSuccessStatusCode();
-            var stream = await response.Content.ReadAsStreamAsync();
-            var docs = stream.DeserializeJsonFromStream<Docs>();
-
-            return docs.BeatMaps;
-        }
-
-        public async Task<IEnumerable<BeatMap>> GetTrendingMaps(CancellationToken cancellationToken, int pageNumber = 0)
-        {
-            var request = new HttpRequestMessage(HttpMethod.Get, "maps/hot/" + pageNumber);
-            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-            using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-            response.EnsureSuccessStatusCode();
-            var stream = await response.Content.ReadAsStreamAsync();
-            var docs = stream.DeserializeJsonFromStream<Docs>();
-
-            return docs.BeatMaps;
+                using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                response.EnsureSuccessStatusCode();
+                var stream = await response.Content.ReadAsStreamAsync();
+                return stream.DeserializeJsonFromStream<SearchResponse>();
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+                return null;
+            }
         }
     }
 }

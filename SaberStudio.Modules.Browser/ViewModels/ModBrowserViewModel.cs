@@ -2,7 +2,6 @@
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Regions;
-using SaberStudio.Core.Extensions;
 using SaberStudio.Modules.Browser.Views;
 using SaberStudio.Services.BeatMods.Interfaces;
 using SaberStudio.Services.BeatMods.Models;

@@ -1,13 +1,13 @@
 ﻿using Prism.Mvvm;
 using Prism.Regions;
-using SaberStudio.Services.BeatSaver.Parser.Models;
+using SaberStudio.Services.BeatSaver.Models;
 
 namespace SaberStudio.Modules.Browser.ViewModels
 {
     public class MapDetailViewModel : BindableBase, INavigationAware
     {
-        private BeatMap beatMap;
-        public BeatMap BeatMap
+        private MapDetail beatMap;
+        public MapDetail BeatMap
         {
             get => beatMap;
             set => SetProperty(ref beatMap, value);
@@ -15,7 +15,7 @@ namespace SaberStudio.Modules.Browser.ViewModels
 
         public bool IsNavigationTarget(NavigationContext navigationContext)
         {
-            var newMap = navigationContext.Parameters["BeatMap"] as BeatMap;   
+            var newMap = navigationContext.Parameters["BeatMap"] as MapDetail;   
             return newMap == BeatMap;
         }
 
@@ -25,7 +25,7 @@ namespace SaberStudio.Modules.Browser.ViewModels
 
         public void OnNavigatedTo(NavigationContext navigationContext)
         {
-            BeatMap = navigationContext.Parameters["BeatMap"] as BeatMap;
+            BeatMap = navigationContext.Parameters["BeatMap"] as MapDetail;
         }
     }
 }

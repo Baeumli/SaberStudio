@@ -64,7 +64,7 @@ namespace SaberStudio.Desktop.ViewModels
             if (addedItems == null || addedItems.Length == 0)
                 return;
 
-            if (!(addedItems[0] is MenuItem menuitem))
+            if (!(addedItems.First() is MenuItem menuitem))
                 return;
 
             if (string.IsNullOrEmpty(menuitem.Target))

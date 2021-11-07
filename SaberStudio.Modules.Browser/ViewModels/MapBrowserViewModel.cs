@@ -8,12 +8,11 @@ using SaberStudio.Services.BeatSaver.Interfaces;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using SaberStudio.Services.BeatSaber;
 using SaberStudio.Services.BeatSaber.Parser.Models;
+using SaberStudio.Services.BeatSaver.Models;
 using SaberStudio.UI;
 using SaberStudio.UI.Models;
-using BeatMap = SaberStudio.Services.BeatSaver.Parser.Models.BeatMap;
 
 namespace SaberStudio.Modules.Browser.ViewModels
 {
@@ -25,7 +24,7 @@ namespace SaberStudio.Modules.Browser.ViewModels
 
         #region Properties
 
-        public ObservableCollection<BeatMap> BeatMaps { get; set; } = new ObservableCollection<BeatMap>();
+        public ObservableCollection<MapDetail> BeatMaps { get; set; } = new ObservableCollection<MapDetail>();
         public List<MenuItem> Categories { get; set; } = new List<MenuItem>();
         public ObservableCollection<BeatMap> WeeklyTrends { get; set; } = new ObservableCollection<BeatMap>();
         public ObservableCollection<Playlist> Playlists { get; set; } = new ObservableCollection<Playlist>();
@@ -89,7 +88,7 @@ namespace SaberStudio.Modules.Browser.ViewModels
 
         private void ExecuteDownloadCommand()
         {
-            beatSaverClient.DownloadMap(CancellationToken.None, SelectedBeatMap);
+            //beatSaverClient.DownloadMap(CancellationToken.None, SelectedBeatMap);
         }
 
         private DelegateCommand goToPreviousPageCommand;
@@ -98,7 +97,6 @@ namespace SaberStudio.Modules.Browser.ViewModels
         private void ExecuteGoToPreviousPageCommand()
         {
             CurrentPage--;
-            GetMapsByCategory(SelectedCategory.Parameter.ToString());
             GoToPreviousPageCommand.RaiseCanExecuteChanged();
             GoToNextPageCommand.RaiseCanExecuteChanged();
         }
@@ -114,7 +112,6 @@ namespace SaberStudio.Modules.Browser.ViewModels
         private void ExecuteGoToNextPageCommand()
         {
             CurrentPage++;
-            GetMapsByCategory(SelectedCategory.Parameter.ToString());
             GoToPreviousPageCommand.RaiseCanExecuteChanged();
             GoToNextPageCommand.RaiseCanExecuteChanged();
         }
@@ -123,46 +120,14 @@ namespace SaberStudio.Modules.Browser.ViewModels
 
         private async void GetMapsByCategory(string category, int? page = null)
         {
-            var pageNumber = page ?? CurrentPage;
+            //var pageNumber = page ?? CurrentPage;
+
+            var response = await beatSaverClient.GetLatestMaps(null, null, false, null, CancellationToken.None);
             
-            var maps = await beatSaverClient.GetLatestMaps(CancellationToken.None, pageNumber);
-
-            switch (category)
-            {
-                case "Hot":
-                    maps = await beatSaverClient.GetTrendingMaps(CancellationToken.None, pageNumber);
-                    break;
-                case "Rating":
-                    maps = await beatSaverClient.GetTopRatedMaps(CancellationToken.None, pageNumber);
-                    break;
-                case "Latest":
-                    maps = await beatSaverClient.GetLatestMaps(CancellationToken.None, pageNumber);
-                    break;
-                case "Downloads":
-                    maps = await beatSaverClient.GetMostDownloadedMaps(CancellationToken.None, pageNumber);
-                    break;
-                case "Plays":
-                    maps = await beatSaverClient.GetMostPlayedMaps(CancellationToken.None, pageNumber);
-                    break;
-            }
-
             BeatMaps.Clear();
-            BeatMaps.AddRange(maps);
+            BeatMaps.AddRange(response.Maps);
         }
-        
-        private async Task PopulateWeeklyTrends()
-        {
-            var maps = new List<BeatMap>();
-            
-            for (var i = 0; i < 3; i++)
-            {
-                var x = await beatSaverClient.GetTrendingMaps(CancellationToken.None, i);
-                maps.AddRange(x);
-            }
-            WeeklyTrends.AddRange(maps.OrderByDescending(x => x.Statistics.Upvotes).Take(15));
-        }
-        
-        
+
         private void PopulateCategories()
         {
             if (Categories.Any())
@@ -190,13 +155,12 @@ namespace SaberStudio.Modules.Browser.ViewModels
         {
         }
         
-        public async void OnNavigatedTo(NavigationContext navigationContext)
+        public void OnNavigatedTo(NavigationContext navigationContext)
         {
             PopulateCategories();
             SelectedCategory = Categories.First();
             ExecuteSelectCategoryCommand();
             Playlists = beatSaberService.GetPlaylists().ToObservableCollection();
-            await PopulateWeeklyTrends();
         }
 
         #endregion

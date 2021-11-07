@@ -4,6 +4,7 @@ using SaberStudio.Services.BeatMods.Models;
 using SaberStudio.Services.BeatMods.Models.Parser;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -12,7 +13,6 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
-using Newtonsoft.Json;
 using SaberStudio.Core.Util;
 using SaberStudio.Services.BeatSaber;
 using SaberStudio.Services.Settings.Interfaces;
@@ -42,21 +42,29 @@ namespace SaberStudio.Services.BeatMods
 
         public async Task<IEnumerable<Mod>> GetMods(CancellationToken cancellationToken, string gameVersion, string search = "", string sort = "", SortOrder sortOrder = SortOrder.Descending, string status = "")
         {
-            var query = HttpUtility.ParseQueryString("");
-            query["gameVersion"] = gameVersion;
-            query["search"] = search;
-            query["sort"] = sort;
-            query["sortDirection"] = Convert.ToString((int)sortOrder);
-            query["status"] = status;
+            try
+            {
+                var query = HttpUtility.ParseQueryString("");
+                query["gameVersion"] = gameVersion;
+                query["search"] = search;
+                query["sort"] = sort;
+                query["sortDirection"] = Convert.ToString((int)sortOrder);
+                query["status"] = status;
 
-            var request = new HttpRequestMessage(HttpMethod.Get, BeatModsApiUrl + "mod?" + query);
-            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(JsonMediaType));
+                var request = new HttpRequestMessage(HttpMethod.Get, BeatModsApiUrl + "mod?" + query);
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(JsonMediaType));
 
-            using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-            response.EnsureSuccessStatusCode();
-            var stream = await response.Content.ReadAsStreamAsync();
-            var mods = stream.DeserializeJsonFromStream<IEnumerable<Mod>>();
-            return mods;
+                using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                response.EnsureSuccessStatusCode();
+                var stream = await response.Content.ReadAsStreamAsync();
+                var mods = stream.DeserializeJsonFromStream<IEnumerable<Mod>>();
+                return mods;
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+                return Enumerable.Empty<Mod>();
+            }
         }
 
 
@@ -74,29 +82,37 @@ namespace SaberStudio.Services.BeatMods
             }
         }
 
-        public IEnumerable<string> GetFileHashesFromMod(Mod mod)
+        private static IEnumerable<string> GetFileHashesFromMod(Mod mod)
         {
             return mod.FileInfos.SelectMany(x => x.Checksums).Select(x => x.Md5Hash);
         }
 
         public async Task<Mod> GetMod(CancellationToken cancellationToken, string gameVersion, string search, string status)
         {
-            var query = HttpUtility.ParseQueryString("");
-            query["gameVersion"] = gameVersion;
-            query["search"] = search;
-            query["status"] = status;
+            try
+            {
+                var query = HttpUtility.ParseQueryString("");
+                query["gameVersion"] = gameVersion;
+                query["search"] = search;
+                query["status"] = status;
 
-            var request = new HttpRequestMessage(HttpMethod.Get, BeatModsApiUrl + "mod?" + query);
-            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(JsonMediaType));
+                var request = new HttpRequestMessage(HttpMethod.Get, BeatModsApiUrl + "mod?" + query);
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(JsonMediaType));
 
-            using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-            response.EnsureSuccessStatusCode();
-            var stream = await response.Content.ReadAsStreamAsync();
-            var mod = stream.DeserializeJsonFromStream<IEnumerable<Mod>>().FirstOrDefault(x => x.Name == search);
-            return mod;
+                using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                response.EnsureSuccessStatusCode();
+                var stream = await response.Content.ReadAsStreamAsync();
+                var mod = stream.DeserializeJsonFromStream<IEnumerable<Mod>>().FirstOrDefault(x => x.Name == search);
+                return mod;
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+                return null;
+            }
         }
 
-        public IEnumerable<string> GetChecksumsOfInstalledMods()
+        private IEnumerable<string> GetChecksumsOfInstalledMods()
         {
             var pluginsDirectory = beatSaberService.GetPluginsDirectory();
 
@@ -112,19 +128,26 @@ namespace SaberStudio.Services.BeatMods
 
         public async Task DownloadMod(CancellationToken cancellationToken, Mod mod)
         {
-            var response = await client.GetAsync(BeatModsApiUrl + mod.FileInfos.First().DownloadUrl, cancellationToken);
-            response.EnsureSuccessStatusCode();
+            try
+            {
+                var response = await client.GetAsync(BeatModsApiUrl + mod.FileInfos.First().DownloadUrl, cancellationToken);
+                response.EnsureSuccessStatusCode();
 
-            var tempPath = Path.Combine(Path.GetTempPath(), "SaberStudio");
-            var zipFile = Path.Combine(tempPath, $"{mod.Name}_{mod.Version}.zip");
+                var tempPath = Path.Combine(Path.GetTempPath(), "SaberStudio");
+                var zipFile = Path.Combine(tempPath, $"{mod.Name}_{mod.Version}.zip");
 
-            await using var stream = await response.Content.ReadAsStreamAsync();
-            await FileHelper.CreateFileFromStream(stream, zipFile, true);
+                await using var stream = await response.Content.ReadAsStreamAsync();
+                await FileHelper.CreateFileFromStream(stream, zipFile, true);
 
-            var gameDirectory = settingsStore.GetValueByKey("beatsaber.installdir") as string;
-            var modFileHashes = GetFileHashesFromMod(mod);
+                var gameDirectory = settingsStore.GetValueByKey("beatsaber.installdir") as string;
+                var modFileHashes = GetFileHashesFromMod(mod);
 
-            FileHelper.ExtractZip(zipFile, gameDirectory, modFileHashes);
+                FileHelper.ExtractZip(zipFile, gameDirectory, modFileHashes);
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+            }
         }
 
         public bool IsModInstalled(Mod mod)
@@ -175,30 +198,46 @@ namespace SaberStudio.Services.BeatMods
             }
         }
 
-        public async Task<Dictionary<string, IEnumerable<string>>> GetGameVersionAliases(CancellationToken cancellationToken)
+        public async Task<ImmutableDictionary<string, IEnumerable<string>>> GetGameVersionAliases(CancellationToken cancellationToken)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, BeatModsAliasUrl);
-            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(JsonMediaType));
+            try
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, BeatModsAliasUrl);
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(JsonMediaType));
 
-            using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-            response.EnsureSuccessStatusCode();
+                using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                response.EnsureSuccessStatusCode();
             
-            var stream = await response.Content.ReadAsStreamAsync();
-            var aliases = stream.DeserializeJsonFromStream<Dictionary<string, IEnumerable<string>>>();
-            return aliases;
+                var stream = await response.Content.ReadAsStreamAsync();
+                var aliases = stream.DeserializeJsonFromStream<ImmutableDictionary<string, IEnumerable<string>>>();
+                return aliases;
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+                return ImmutableDictionary<string, IEnumerable<string>>.Empty;
+            }
         }
 
         public async Task<IEnumerable<string>> GetGameVersions(CancellationToken cancellationToken)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, BeatModsVersionsUrl);
-            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(JsonMediaType));
+            try
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, BeatModsVersionsUrl);
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(JsonMediaType));
 
-            using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-            response.EnsureSuccessStatusCode();
+                using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                response.EnsureSuccessStatusCode();
             
-            var stream = await response.Content.ReadAsStreamAsync();
-            var versions = stream.DeserializeJsonFromStream<IEnumerable<string>>();
-            return versions;
+                var stream = await response.Content.ReadAsStreamAsync();
+                var versions = stream.DeserializeJsonFromStream<IEnumerable<string>>();
+                return versions;
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+                return Enumerable.Empty<string>();
+            }
         }
 
         public async Task<string> GetGameVersionFromAlias(string versionAlias, CancellationToken cancellationToken)

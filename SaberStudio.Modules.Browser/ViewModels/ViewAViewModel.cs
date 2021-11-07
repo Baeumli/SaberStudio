@@ -10,11 +10,11 @@ namespace SaberStudio.Modules.Browser.ViewModels
 {
     public class ViewAViewModel : BindableBase
     {
-        private string _message;
+        private string message;
         public string Message
         {
-            get => _message;
-            set => SetProperty(ref _message, value);
+            get => message;
+            set => SetProperty(ref message, value);
         }
 
         public ViewAViewModel()

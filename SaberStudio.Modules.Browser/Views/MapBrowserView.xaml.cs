@@ -1,5 +1,4 @@
 ﻿using SaberStudio.Modules.Browser.ViewModels;
-using SaberStudio.Services.BeatSaver.Parser.Models;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;

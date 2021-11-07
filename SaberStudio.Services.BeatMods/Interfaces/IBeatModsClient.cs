@@ -1,6 +1,7 @@
 ﻿using SaberStudio.Services.BeatMods.Models;
 using SaberStudio.Services.BeatMods.Models.Parser;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,7 +16,7 @@ namespace SaberStudio.Services.BeatMods.Interfaces
         public Task<Mod> GetMod(CancellationToken cancellationToken, string gameVersion, string search, string status);
         public bool IsModInstalled(Mod mod);
         public Task InstallModLoader(string version);
-        public Task<Dictionary<string, IEnumerable<string>>> GetGameVersionAliases(CancellationToken cancellationToken);
+        public Task<ImmutableDictionary<string, IEnumerable<string>>> GetGameVersionAliases(CancellationToken cancellationToken);
         public Task<IEnumerable<string>> GetGameVersions(CancellationToken cancellationToken);
         public Task<string> GetGameVersionFromAlias(string versionAlias, CancellationToken cancellationToken);
 
